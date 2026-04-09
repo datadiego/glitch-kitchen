@@ -1,0 +1,23 @@
+{
+  "pipelines": [
+    {
+      "id": 1775754173271,
+      "name": "Pipeline 1",
+      "repeat": 1,
+      "recipe": [
+        {
+          "id": "saturate",
+          "args": {
+            "amount": "100:300"
+          }
+        },
+        {
+          "id": "rotate",
+          "args": {
+            "degrees": "0:360"
+          }
+        }
+      ]
+    }
+  ]
+}
