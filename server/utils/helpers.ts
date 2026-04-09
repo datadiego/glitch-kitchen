@@ -1,5 +1,5 @@
-import { spawn } from 'child_process';
-import { mkdir, readdir, unlink, rm } from 'fs/promises';
+import { spawn, rmSync } from 'child_process';
+import { mkdir, readdir, unlink } from 'fs/promises';
 import { existsSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
@@ -59,7 +59,7 @@ class ClientManager {
       for (const [id, client] of this.clients) {
         if (now - client.lastActive > this.CLIENT_TTL) {
           const clientDir = this.getClientDir(id);
-          await rm(clientDir, { recursive: true, force: true }).catch(() => {});
+          rmSync(clientDir, { recursive: true, force: true });
           this.clients.delete(id);
         }
       }
