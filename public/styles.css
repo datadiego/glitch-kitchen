@@ -17,8 +17,8 @@
   --border: #333;
   --text: #ccc;
   --text-dim: #666;
-  --accent: #fff;
-  --accent-dim: #888;
+  --accent: #aaa;
+  --accent-dim: #555;
 }
 
 body {
@@ -48,7 +48,8 @@ header #logo {
   line-height: 1;
 }
 
-header h1, header #logo {
+header h1,
+header #logo {
   font-size: 1rem;
   color: var(--accent);
   letter-spacing: 0.05em;
@@ -106,12 +107,12 @@ header .header-actions {
   main {
     flex-direction: column;
   }
-  
+
   .operations-panel {
     width: 100%;
     max-height: 30vh;
   }
-  
+
   .io-container {
     flex-direction: column;
   }
@@ -181,7 +182,8 @@ header .header-actions {
   cursor: pointer;
 }
 
-header .auto-bake, header .sound-toggle {
+header .auto-bake,
+header .sound-toggle {
   display: inline-flex;
   align-items: center;
   gap: 0.3rem;
@@ -484,7 +486,7 @@ main {
   border: 1px dashed var(--border);
 }
 
-#pipelines-container:empty + .add-pipeline-btn {
+#pipelines-container:empty+.add-pipeline-btn {
   margin-top: 0;
 }
 
@@ -596,7 +598,7 @@ header p {
   width: 100%;
 }
 
-.arg-colors > label {
+.arg-colors>label {
   font-size: 0.75rem;
   color: var(--text-dim);
 }
@@ -715,18 +717,18 @@ header p {
   background: var(--bg);
 }
 
-.io-container > div {
+.io-container>div {
   flex: 1;
   display: flex;
   flex-direction: column;
 }
 
-.io-container > div .input-area,
-.io-container > div .output-preview {
+.io-container>div .input-area,
+.io-container>div .output-preview {
   flex: 1;
 }
 
-.io-container > div {
+.io-container>div {
   flex: 1;
 }
 
@@ -741,18 +743,20 @@ header p {
 .output-section .download-btn {
   margin-top: 0.5rem;
   padding: 0.3rem 0.6rem;
-  font-size: 0.75rem;
-  background: var(--bg-alt);
-  border: 1px solid var(--border);
-  color: var(--text-dim);
+  font-size: inherit;
+  background: var(--bg);
+  border: 1px solid var(--accent-dim);
+  color: var(--accent);
+  font-family: 'Courier New', monospace;
   cursor: pointer;
-  border-radius: 3px;
   width: 100%;
+  height: 2.4em;
 }
 
 .input-section .use-output-btn:hover,
 .output-section .download-btn:hover {
-  background: var(--border);
+  background: var(--accent);
+  color: var(--bg);
 }
 
 .input-area,
@@ -807,7 +811,6 @@ header p {
   position: relative;
   z-index: 1;
   flex-shrink: 0;
-  margin-top: 0.5rem;
   height: 2.4em;
 }
 
@@ -865,12 +868,12 @@ header p {
   main {
     flex-direction: column;
   }
-  
+
   .operations-panel {
     width: 100%;
     max-height: 30vh;
   }
-  
+
   .io-container {
     flex-direction: column;
   }
