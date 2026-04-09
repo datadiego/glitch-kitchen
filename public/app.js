@@ -276,21 +276,31 @@ function setupDragula() {
       pipeline.recipe.splice(toIndex, 0, { id: op.id, args });
       el.remove();
     } else {
+      let movedItem = null;
+      
       if (source.dataset.pipeline !== target.dataset.pipeline) {
         const sourcePipeline = pipelines.find(p => p.id === parseInt(source.dataset.pipeline));
         if (sourcePipeline) {
           const opIndex = parseInt(el.dataset.index);
+          movedItem = sourcePipeline.recipe[opIndex];
           sourcePipeline.recipe.splice(opIndex, 1);
         }
+      } else {
+        const oldIndex = parseInt(el.dataset.index);
+        movedItem = pipeline.recipe[oldIndex];
+        pipeline.recipe.splice(oldIndex, 1);
       }
       
-      const stepElements = Array.from(target.querySelectorAll('.recipe-step'));
-      const newOrder = stepElements.map(step => {
-        const idx = parseInt(step.dataset.index);
-        return pipeline.recipe[idx];
-      }).filter(Boolean);
-      
-      pipeline.recipe = newOrder;
+      if (movedItem) {
+        const stepElements = Array.from(target.children).filter(c => c.classList.contains('recipe-step'));
+        let toIndex = stepElements.length;
+        
+        if (sibling && sibling.classList && sibling.classList.contains('recipe-step')) {
+          toIndex = stepElements.indexOf(sibling);
+        }
+        
+        pipeline.recipe.splice(toIndex, 0, movedItem);
+      }
     }
     
     renderPipelines();
