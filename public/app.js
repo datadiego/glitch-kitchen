@@ -1,6 +1,7 @@
 let pipelines = [];
 let inputFilenames = [];
 let inputPaths = [];
+let outputPaths = [];
 let dragulaInstances = [];
 let clientId = null;
 
@@ -612,9 +613,12 @@ async function bake() {
     const data = await res.json();
     
     if (data.success) {
+      outputPaths = [];
       if (data.outputs) {
+        outputPaths = data.outputs;
         outputEl.innerHTML = data.outputs.map(path => `<img src="${path}" alt="Output" />`).join('');
       } else if (data.output) {
+        outputPaths = [data.output];
         outputEl.innerHTML = `<img src="${data.output}" alt="Output" />`;
       }
       outputEl.classList.remove('error');
@@ -728,4 +732,55 @@ document.addEventListener('visibilitychange', () => {
   if (!document.hidden && document.title === 'ready!') {
     document.title = 'glitch-kitchen';
   }
+});
+
+document.getElementById('download-output-btn').addEventListener('click', () => {
+  outputPaths.forEach((path, index) => {
+    const a = document.createElement('a');
+    a.href = path;
+    a.download = `output-${index + 1}.png`;
+    a.click();
+  });
+});
+
+document.getElementById('use-output-as-input-btn').addEventListener('click', async () => {
+  if (outputPaths.length === 0) return;
+  
+  inputFilenames = [];
+  inputPaths = [];
+  
+  const previewContainer = document.getElementById('input-preview');
+  previewContainer.innerHTML = '<div class="multi-preview"></div>';
+  const multiPreview = previewContainer.querySelector('.multi-preview');
+  
+  for (const path of outputPaths) {
+    const response = await fetch(path);
+    const blob = await response.blob();
+    const filename = path.split('/').pop();
+    const file = new File([blob], filename, { type: blob.type });
+    
+    const formData = new FormData();
+    formData.append('image', file);
+    
+    try {
+      const res = await fetch(`/api/upload?clientId=${clientId}`, {
+        method: 'POST',
+        body: formData
+      });
+      
+      const data = await res.json();
+      inputFilenames.push(data.filename);
+      inputPaths.push(data.path);
+      
+      const img = document.createElement('img');
+      img.src = data.path;
+      img.alt = filename;
+      multiPreview.appendChild(img);
+    } catch (err) {
+      console.error('Upload failed:', err);
+    }
+  }
+  
+  updateBakeButton();
+  triggerAutoBake();
 });

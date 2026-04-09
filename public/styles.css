@@ -567,7 +567,6 @@ header p {
 .io-container {
   display: flex;
   gap: 1rem;
-  margin-top: 0.5rem;
   flex-shrink: 0;
   position: relative;
   z-index: 1;
@@ -594,6 +593,24 @@ header p {
   font-size: 0.9rem;
   margin-bottom: 0.3rem;
   color: var(--accent-dim);
+}
+
+.input-section .use-output-btn,
+.output-section .download-btn {
+  margin-top: 0.5rem;
+  padding: 0.3rem 0.6rem;
+  font-size: 0.75rem;
+  background: var(--bg-alt);
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  cursor: pointer;
+  border-radius: 3px;
+  width: 100%;
+}
+
+.input-section .use-output-btn:hover,
+.output-section .download-btn:hover {
+  background: var(--border);
 }
 
 .input-area,
@@ -639,7 +656,6 @@ header p {
 
 .bake-btn {
   width: 100%;
-  padding: 0.6rem;
   background: var(--bg);
   border: 1px solid var(--accent-dim);
   color: var(--accent);
@@ -651,10 +667,6 @@ header p {
   flex-shrink: 0;
   margin-top: 0.5rem;
   height: 2.4em;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  line-height: 1;
 }
 
 .bake-btn:hover:not(:disabled) {
