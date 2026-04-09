@@ -230,7 +230,7 @@ main {
 }
 
 .pipeline-name .repeat-label input {
-  width: 50px;
+  width: 65px;
   padding: 0.2rem 0.3rem;
   background: var(--bg);
   border: 1px solid var(--border);
@@ -433,7 +433,7 @@ header p {
   color: var(--text);
   font-family: inherit;
   font-size: 0.8rem;
-  width: 55px;
+  width: 65px;
 }
 
 .arg-inline select {
