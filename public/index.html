@@ -11,6 +11,11 @@
   <div class="app">
     <header>
       <a href="/" id="logo">glitch-kitchen</a>
+      <div class="header-actions">
+        <button id="save-btn" class="header-btn">Save</button>
+        <button id="load-btn" class="header-btn">Load</button>
+      </div>
+      <input type="file" id="load-input" accept=".json" hidden>
       <label class="auto-bake">
         <input type="checkbox" id="auto-bake">
         Auto Bake
@@ -30,12 +35,6 @@
       </aside>
       
       <section class="recipe-panel">
-        <div class="pipeline-controls">
-          <button id="save-btn" class="save-btn">Save</button>
-          <button id="load-btn" class="load-btn">Load</button>
-          <input type="file" id="load-input" accept=".json" hidden>
-        </div>
-        
         <div id="pipelines-container" class="pipelines-wrapper"></div>
         
         <button id="add-pipeline-btn" class="add-pipeline-btn">+ Add Pipeline</button>

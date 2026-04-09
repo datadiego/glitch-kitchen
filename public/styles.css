@@ -45,6 +45,7 @@ header {
 
 header #logo {
   font-size: 1rem;
+  line-height: 1;
 }
 
 header h1, header #logo {
@@ -54,23 +55,59 @@ header h1, header #logo {
   text-decoration: none;
 }
 
-header .auto-bake, header .sound-toggle {
+header .header-btn {
+  padding: 0.2rem 0.5rem;
+  font-size: 0.75rem;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  cursor: pointer;
+  border-radius: 3px;
+  font-family: inherit;
+}
+
+header .header-btn:hover {
+  background: var(--bg-alt);
+}
+
+header .header-actions {
   margin-left: auto;
   display: flex;
-  align-items: center;
   gap: 0.5rem;
+}
+
+header .auto-bake, header .sound-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
   font-size: 0.85rem;
   color: var(--text-dim);
   cursor: pointer;
 }
 
+header .auto-bake input,
+header .sound-toggle input {
+  cursor: pointer;
+  vertical-align: middle;
+  margin: 0;
+  padding: 0;
+  width: 14px;
+  height: 14px;
+  display: block;
+}
+
 header .sound-toggle {
-  margin-left: 1rem;
+  margin-left: 0;
+}
+
+header .sound-toggle {
+  margin-left: 0;
 }
 
 header .auto-bake input,
 header .sound-toggle input {
   cursor: pointer;
+  vertical-align: middle;
 }
 
 header p {
