@@ -1,4 +1,6 @@
-import { spawn, rmSync } from 'child_process';
+import { spawn } from 'child_process';
+import { mkdir, readdir, unlink } from 'fs/promises';
+import { existsSync, rmSync } from 'fs';
 import { mkdir, readdir, unlink } from 'fs/promises';
 import { existsSync } from 'fs';
 import { join, dirname } from 'path';
