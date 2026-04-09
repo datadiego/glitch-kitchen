@@ -646,6 +646,21 @@ document.getElementById('auto-bake').addEventListener('change', () => {
   triggerAutoBake();
 });
 
+document.getElementById('menu-btn').addEventListener('click', () => {
+  document.getElementById('menu-modal').classList.add('open');
+});
+
+document.getElementById('close-menu').addEventListener('click', (e) => {
+  e.stopPropagation();
+  document.getElementById('menu-modal').classList.remove('open');
+});
+
+document.getElementById('menu-modal').addEventListener('click', (e) => {
+  if (e.target.id === 'menu-modal') {
+    document.getElementById('menu-modal').classList.remove('open');
+  }
+});
+
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Enter') {
     const recipeStep = e.target.closest('.recipe-step');

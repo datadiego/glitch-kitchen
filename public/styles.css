@@ -87,6 +87,100 @@ header .header-actions {
   gap: 0.5rem;
 }
 
+.menu-btn {
+  display: flex;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 1.6rem;
+  color: var(--text);
+  padding: 0.25rem;
+  line-height: 1;
+}
+
+.menu-btn:hover {
+  color: var(--accent);
+}
+
+@media (max-width: 768px) {
+  main {
+    flex-direction: column;
+  }
+  
+  .operations-panel {
+    width: 100%;
+    max-height: 30vh;
+  }
+  
+  .io-container {
+    flex-direction: column;
+  }
+}
+
+.menu-modal {
+  display: none;
+  background: rgba(0, 0, 0, 0.95);
+  cursor: default;
+}
+
+.menu-modal.open {
+  display: flex;
+}
+
+.menu-content {
+  background: var(--bg-alt);
+  border: 1px solid var(--border);
+  padding: 1.5rem;
+  min-width: 280px;
+  max-width: 90vw;
+  cursor: default;
+  position: relative;
+}
+
+.menu-content h2 {
+  color: var(--accent);
+  margin-bottom: 1.5rem;
+  font-size: 1.1rem;
+}
+
+.close-menu {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  background: transparent;
+  border: none;
+  color: var(--text-dim);
+  font-size: 1.5rem;
+  cursor: pointer;
+  line-height: 1;
+  padding: 0.25rem 0.5rem;
+}
+
+.close-menu:hover {
+  color: var(--accent);
+}
+
+.setting-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+  cursor: pointer;
+  font-size: 0.95rem;
+}
+
+.setting-item:last-child {
+  border-bottom: none;
+}
+
+.setting-item input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+
 header .auto-bake, header .sound-toggle {
   display: inline-flex;
   align-items: center;

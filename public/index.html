@@ -18,16 +18,24 @@
           <option value="">Load Pipeline</option>
         </select>
       </div>
+      <button id="menu-btn" class="menu-btn">⚙</button>
       <input type="file" id="load-input" accept=".json" hidden>
-      <label class="auto-bake">
-        <input type="checkbox" id="auto-bake">
-        Auto Bake
-      </label>
-      <label class="sound-toggle">
-        <input type="checkbox" id="sound-enabled" checked>
-        Sound
-      </label>
     </header>
+    
+    <div id="menu-modal" class="modal menu-modal">
+      <div class="menu-content">
+        <button class="close-menu" id="close-menu">&times;</button>
+        <h2>Settings</h2>
+        <label class="setting-item">
+          <input type="checkbox" id="auto-bake">
+          Auto Bake
+        </label>
+        <label class="setting-item">
+          <input type="checkbox" id="sound-enabled" checked>
+          Sound
+        </label>
+      </div>
+    </div>
     
     <main>
       <aside class="operations-panel">
