@@ -1,5 +1,5 @@
 {
-  "name": "glitch-hook",
+  "name": "glitch-kitchen",
   "type": "module",
   "scripts": {
     "dev": "bun run server/index.ts",
