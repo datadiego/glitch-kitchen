@@ -70,6 +70,17 @@ header .header-btn:hover {
   background: var(--bg-alt);
 }
 
+header .pipeline-select {
+  padding: 0.2rem 0.3rem;
+  font-size: 0.75rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  border-radius: 3px;
+  font-family: inherit;
+  cursor: pointer;
+}
+
 header .header-actions {
   margin-left: auto;
   display: flex;

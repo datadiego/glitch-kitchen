@@ -673,6 +673,7 @@ window.closeModal = function() {
 };
 
 loadOperations();
+loadPipelineList();
 initClient();
 
 addPipeline();
@@ -731,6 +732,44 @@ document.getElementById('load-input').addEventListener('change', (e) => {
 document.addEventListener('visibilitychange', () => {
   if (!document.hidden && document.title === 'ready!') {
     document.title = 'glitch-kitchen';
+  }
+});
+
+async function loadPipelineList() {
+  try {
+    const res = await fetch('/api/pipelines');
+    const files = await res.json();
+    const select = document.getElementById('pipeline-select');
+    const selected = select.dataset.selected || '';
+    select.innerHTML = '<option value="">Load Pipeline</option>';
+    files.forEach(file => {
+      const option = document.createElement('option');
+      option.value = file;
+      option.textContent = file.replace('.json', '');
+      if (file === selected) option.selected = true;
+      select.appendChild(option);
+    });
+  } catch (err) {
+    console.error('Failed to load pipeline list:', err);
+  }
+}
+
+document.getElementById('pipeline-select').addEventListener('change', async (e) => {
+  const file = e.target.value;
+  if (!file) return;
+  
+  try {
+    const res = await fetch(`/pipelines/${file}`);
+    const state = await res.json();
+    if (state.pipelines) {
+      pipelines = state.pipelines;
+      renderPipelines();
+      updateBakeButton();
+      triggerAutoBake();
+      select.dataset.selected = file;
+    }
+  } catch (err) {
+    console.error('Failed to load pipeline:', err);
   }
 });
 
