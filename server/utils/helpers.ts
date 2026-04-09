@@ -1,5 +1,5 @@
 import { spawn } from 'child_process';
-import { mkdir, readdir, unlink } from 'fs/promises';
+import { mkdir, readdir, unlink, rm } from 'fs/promises';
 import { existsSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
