@@ -292,11 +292,10 @@ function setupDragula() {
       }
       
       if (movedItem) {
-        const stepElements = Array.from(target.children).filter(c => c.classList.contains('recipe-step'));
-        let toIndex = stepElements.length;
+        let toIndex = pipeline.recipe.length;
         
-        if (sibling && sibling.classList && sibling.classList.contains('recipe-step')) {
-          toIndex = stepElements.indexOf(sibling);
+        if (sibling && sibling.classList.contains('recipe-step')) {
+          toIndex = parseInt(sibling.dataset.index);
         }
         
         pipeline.recipe.splice(toIndex, 0, movedItem);
