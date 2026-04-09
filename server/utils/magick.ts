@@ -48,6 +48,19 @@ export function buildMagickCommand(operations: OperationRecipe[]): string[] {
       case 'saturate':
         parts.push('-modulate', `100,${resolvedArgs.amount},100`);
         break;
+      case 'modulate':
+        const modArgs = resolvedArgs as { brightness: number; saturation: number; hue: number };
+        const hueValue = Math.max(0, Math.min(200, 100 + modArgs.hue));
+        parts.push('-modulate', `${modArgs.brightness},${modArgs.saturation},${hueValue}`);
+        break;
+      case 'contrast':
+        const contrastArgs = resolvedArgs as { value: number };
+        if (contrastArgs.value > 0) {
+          parts.push('-sigmoidal-contrast', `${contrastArgs.value},50%`);
+        } else if (contrastArgs.value < 0) {
+          parts.push('+sigmoidal-contrast', `${Math.abs(contrastArgs.value)},50%`);
+        }
+        break;
       case 'dither':
         const ditherArgs = resolvedArgs as { method: string; levels: number };
         if (ditherArgs.method.startsWith('ordered')) {
@@ -160,6 +173,12 @@ export function buildMagickCommand(operations: OperationRecipe[]): string[] {
         break;
       case 'shear':
         parts.push('-shear', `${resolvedArgs.x}x${resolvedArgs.y}`);
+        break;
+      case 'tint':
+        const tintArgs = resolvedArgs as { color: string; amount: number };
+        const tintHex = tintArgs.color.startsWith('#') ? tintArgs.color : `#${tintArgs.color}`;
+        const percent = Math.min(100, tintArgs.amount);
+        parts.push('-fill', tintHex, '-tint', `${percent}%`);
         break;
       case 'remap':
         const remapArgs = resolvedArgs as { palette: unknown; dither: string };

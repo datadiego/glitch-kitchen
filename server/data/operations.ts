@@ -306,6 +306,36 @@ export const operations: Operation[] = [
     ]
   },
   {
+    id: 'tint',
+    name: 'Tint',
+    category: 'Color',
+    description: 'Apply a color tint to the image',
+    args: [
+      { name: 'color', label: 'Color', type: 'color', default: '#FF0000' },
+      { name: 'amount', label: 'Amount (%)', type: 'number', default: 100, min: 0, max: 200 }
+    ]
+  },
+  {
+    id: 'modulate',
+    name: 'Modulate',
+    category: 'Color',
+    description: 'Adjust brightness, saturation and hue',
+    args: [
+      { name: 'brightness', label: 'Brightness (%)', type: 'number', default: 100, min: 0, max: 300 },
+      { name: 'saturation', label: 'Saturation (%)', type: 'number', default: 100, min: 0, max: 300 },
+      { name: 'hue', label: 'Hue Shift (%)', type: 'number', default: 0, min: -180, max: 180 }
+    ]
+  },
+  {
+    id: 'contrast',
+    name: 'Contrast',
+    category: 'Color',
+    description: 'Adjust image contrast',
+    args: [
+      { name: 'value', label: 'Amount', type: 'number', default: 0, min: -100, max: 100 }
+    ]
+  },
+  {
     id: 'remap',
     name: 'Remap',
     category: 'Color',
