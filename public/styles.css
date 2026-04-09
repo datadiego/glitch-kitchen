@@ -43,6 +43,10 @@ header {
   gap: 1rem;
 }
 
+header #logo {
+  font-size: 1rem;
+}
+
 header h1, header #logo {
   font-size: 1rem;
   color: var(--accent);
@@ -50,7 +54,7 @@ header h1, header #logo {
   text-decoration: none;
 }
 
-header .auto-bake {
+header .auto-bake, header .sound-toggle {
   margin-left: auto;
   display: flex;
   align-items: center;
@@ -60,7 +64,12 @@ header .auto-bake {
   cursor: pointer;
 }
 
-header .auto-bake input {
+header .sound-toggle {
+  margin-left: 1rem;
+}
+
+header .auto-bake input,
+header .sound-toggle input {
   cursor: pointer;
 }
 
@@ -335,20 +344,6 @@ main {
 
 #pipelines-container:empty + .add-pipeline-btn {
   margin-top: 0;
-}
-
-header .auto-bake {
-  margin-left: auto;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.85rem;
-  color: var(--text-dim);
-  cursor: pointer;
-}
-
-header .auto-bake input {
-  cursor: pointer;
 }
 
 header p {

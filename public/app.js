@@ -528,6 +528,13 @@ function triggerAutoBake() {
   }
 }
 
+function playNotificationSound() {
+  if (document.getElementById('sound-enabled')?.checked) {
+    const audio = new Audio('/notification.mp3');
+    audio.play().catch(err => console.log('Audio play failed:', err));
+  }
+}
+
 let currentInput = null;
 
 async function handleImageUpload(e) {
@@ -611,6 +618,7 @@ async function bake() {
         outputEl.innerHTML = `<img src="${data.output}" alt="Output" />`;
       }
       outputEl.classList.remove('error');
+      playNotificationSound();
     } else {
       outputEl.innerHTML = `<span class="error-msg">Error: ${data.error}</span>`;
       outputEl.classList.add('error');
