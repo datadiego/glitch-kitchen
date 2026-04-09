@@ -1,0 +1,8 @@
+{
+  "name": "glitch-hook",
+  "type": "module",
+  "scripts": {
+    "dev": "bun run server/index.ts",
+    "build": "echo 'No build step needed'"
+  }
+}

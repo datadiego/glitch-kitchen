@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>glitch-kitchen - ImageMagick Pipeline</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/dragula@3.7.3/dist/dragula.min.css">
+</head>
+<body>
+  <div class="app">
+    <header>
+      <a href="/" id="logo">glitch-kitchen</a>
+      <label class="auto-bake">
+        <input type="checkbox" id="auto-bake">
+        Auto Bake
+      </label>
+    </header>
+    
+    <main>
+      <aside class="operations-panel">
+        <div class="search-box">
+          <input type="text" id="search" placeholder="Search operations...">
+        </div>
+        <div id="operations-list"></div>
+      </aside>
+      
+      <section class="recipe-panel">
+        <div class="pipeline-controls">
+          <button id="save-btn" class="save-btn">Save</button>
+          <button id="load-btn" class="load-btn">Load</button>
+          <input type="file" id="load-input" accept=".json" hidden>
+        </div>
+        
+        <div id="pipelines-container" class="pipelines-wrapper"></div>
+        
+        <button id="add-pipeline-btn" class="add-pipeline-btn">+ Add Pipeline</button>
+        
+        <div class="io-container">
+          <div class="input-section">
+            <h3>Input</h3>
+            <div class="input-area">
+              <input type="file" id="image-input" accept="image/*" multiple hidden>
+              <div class="input-preview" id="input-preview">
+                <label for="image-input" class="upload-btn">Upload Image</label>
+              </div>
+            </div>
+          </div>
+          
+          <div class="output-section">
+            <h3>Output</h3>
+            <div class="output-preview" id="output-preview">
+              <span class="output-hint">Output will appear here</span>
+            </div>
+          </div>
+        </div>
+        
+        <div id="img-modal" class="modal" onclick="closeModal()">
+          <img id="modal-img" src="" alt="">
+        </div>
+        
+        <button id="bake-btn" class="bake-btn" disabled>Bake!</button>
+      </section>
+    </main>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/dragula@3.7.3/dist/dragula.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
