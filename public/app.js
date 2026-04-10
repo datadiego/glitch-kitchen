@@ -610,6 +610,11 @@ async function bake() {
   btn.disabled = true;
   btn.classList.add('loading');
   
+  const downloadBtn = document.getElementById('download-output-btn');
+  const useOutputBtn = document.getElementById('use-output-as-input-btn');
+  downloadBtn.disabled = true;
+  useOutputBtn.disabled = true;
+  
   let randomStr = Math.random().toString(36).slice(2, 10);
   btn.textContent = randomStr;
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*▓▒░⠁⠂⠃⠄⠅⠆⠇⠈⠉⠊⠋⠌⠍⠎⠏⠐⠑⠒⠓⠔⠕⠖⠗⠙⠚⠛⠜⠝⠞⠟⠠⠡⠢⠣⠤⠥⠦⠧⠨⠩⠪⠫⠬⠭⠮⠯⠰⠱⠲⠳⠴⠵⠶⠷⠸⠹⠺⠻⠼⠽⠾⠿┌┐└┘├┤┬┴┼═║╔╗╚╝╠╣╦╩╬╱╲╳';
@@ -665,6 +670,8 @@ async function bake() {
     btn.textContent = 'Bake!';
     btn.disabled = false;
     document.title = 'ready!';
+    downloadBtn.disabled = !outputPaths.length;
+    useOutputBtn.disabled = !outputPaths.length;
   }
 }
 
@@ -694,7 +701,7 @@ document.getElementById('menu-modal').addEventListener('click', (e) => {
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Enter') {
     const recipeStep = e.target.closest('.recipe-step');
-    if (recipeStep) {
+    if (recipeStep || e.target.classList.contains('pipeline-repeat-input')) {
       e.target.blur();
       triggerAutoBake();
     } else if (!e.target.matches('input, select, textarea')) {
