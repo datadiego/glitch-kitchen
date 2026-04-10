@@ -323,7 +323,7 @@ export const operations: Operation[] = [
     args: [
       { name: 'brightness', label: 'Brightness (%)', type: 'number', default: 100, min: 0, max: 300 },
       { name: 'saturation', label: 'Saturation (%)', type: 'number', default: 100, min: 0, max: 300 },
-      { name: 'hue', label: 'Hue Shift (%)', type: 'number', default: 0, min: -180, max: 180 }
+      { name: 'hue', label: 'Hue Shift', type: 'range', default: 0, min: -180, max: 180 }
     ]
   },
   {

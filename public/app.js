@@ -137,10 +137,14 @@ function renderRecipeStep(item, index, pipelineId) {
               ? `<select name="${arg.name}" data-index="${index}" data-pipeline="${pipelineId}">
                   ${arg.options.map(opt => `<option value="${opt}" ${item.args[arg.name] === opt ? 'selected' : ''}>${opt}</option>`).join('')}
                  </select>`
-              : `<input type="text" name="${arg.name}" data-index="${index}" data-pipeline="${pipelineId}" 
-                  value="${item.args[arg.name]}" 
-                  placeholder="${arg.min !== undefined ? `${arg.min}:${arg.max}` : 'min:max'}"
-                  autocomplete="off" />`
+              : arg.type === 'range'
+                ? `<input type="range" name="${arg.name}" data-index="${index}" data-pipeline="${pipelineId}" 
+                    value="${item.args[arg.name]}" min="${arg.min}" max="${arg.max}" step="1" />
+                    <span class="range-value">${item.args[arg.name]}</span>`
+                : `<input type="text" name="${arg.name}" data-index="${index}" data-pipeline="${pipelineId}" 
+                    value="${item.args[arg.name]}" 
+                    placeholder="${arg.min !== undefined ? `${arg.min}:${arg.max}` : 'min:max'}"
+                    autocomplete="off" />`
             }
           </div>
         `).join('')}
@@ -346,6 +350,15 @@ function setupRecipeStepEvents() {
     
     input.addEventListener('change', handleChange);
     input.addEventListener('input', handleChange);
+  });
+  
+  document.querySelectorAll('input[type="range"]').forEach(input => {
+    input.addEventListener('input', () => {
+      const valueSpan = input.parentElement.querySelector('.range-value');
+      if (valueSpan) {
+        valueSpan.textContent = input.value;
+      }
+    });
   });
   
   document.querySelectorAll('.arg-colors').forEach(container => {

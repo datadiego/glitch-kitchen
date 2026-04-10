@@ -50,7 +50,7 @@ export function buildMagickCommand(operations: OperationRecipe[]): string[] {
         break;
       case 'modulate':
         const modArgs = resolvedArgs as { brightness: number; saturation: number; hue: number };
-        const hueValue = Math.max(0, Math.min(200, 100 + modArgs.hue));
+        const hueValue = 100 + (modArgs.hue * 100 / 180);
         parts.push('-modulate', `${modArgs.brightness},${modArgs.saturation},${hueValue}`);
         break;
       case 'contrast':
