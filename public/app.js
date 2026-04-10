@@ -733,6 +733,7 @@ document.getElementById('input-preview').addEventListener('click', (e) => {
       <label for="image-input" class="upload-btn">Upload Image</label>
     `;
     document.getElementById('image-input').value = '';
+    document.getElementById('output-preview').innerHTML = '';
     updateBakeButton();
     updateOutputButtons();
   }
