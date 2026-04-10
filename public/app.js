@@ -640,10 +640,10 @@ async function bake() {
       outputPaths = [];
       if (data.outputs) {
         outputPaths = data.outputs;
-        outputEl.innerHTML = data.outputs.map(path => `<img src="${path}" alt="Output" />`).join('');
+        outputEl.innerHTML = '<div class="multi-preview">' + data.outputs.map(path => `<img src="${path}" alt="Output" />`).join('') + '</div>';
       } else if (data.output) {
         outputPaths = [data.output];
-        outputEl.innerHTML = `<img src="${data.output}" alt="Output" />`;
+        outputEl.innerHTML = `<div class="multi-preview"><img src="${data.output}" alt="Output" /></div>`;
       }
       outputEl.classList.remove('error');
       updateOutputButtons();

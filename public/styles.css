@@ -817,7 +817,9 @@ header p {
 }
 
 .input-preview img,
-.output-preview img {
+.output-preview img,
+.input-preview .multi-preview img,
+.output-preview .multi-preview img {
   max-width: 100%;
   max-height: 300px;
   object-fit: contain;
