@@ -56,13 +56,11 @@ function renderPipelines() {
   container.innerHTML = pipelines.map(pipeline => `
     <div class="pipeline" data-id="${pipeline.id}" data-dragula-handled="false">
       <div class="pipeline-header">
-        <div class="pipeline-name">
-          <input type="text" value="${pipeline.name}" data-pipeline="${pipeline.id}" class="pipeline-name-input" spellcheck="false">
-          <label class="repeat-label">
-            Repeat:
-            <input type="number" value="${pipeline.repeat}" data-pipeline="${pipeline.id}" class="pipeline-repeat-input" min="1" max="100">
-          </label>
-        </div>
+        <input type="text" value="${pipeline.name}" data-pipeline="${pipeline.id}" class="pipeline-name-input" spellcheck="false">
+        <span class="repeat-inline">
+          <span>Repeat:</span>
+          <input type="number" value="${pipeline.repeat}" data-pipeline="${pipeline.id}" class="pipeline-repeat-input" min="1" max="100">
+        </span>
         <div class="pipeline-actions">
           <button class="clear-pipeline" data-pipeline="${pipeline.id}">Clear</button>
           <button class="remove-pipeline" data-pipeline="${pipeline.id}">×</button>
