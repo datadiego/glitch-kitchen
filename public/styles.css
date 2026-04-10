@@ -759,6 +759,18 @@ header p {
   color: var(--bg);
 }
 
+.input-section .use-output-btn:disabled,
+.output-section .download-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.input-section .use-output-btn:disabled:hover,
+.output-section .download-btn:disabled:hover {
+  background: var(--bg);
+  color: var(--accent);
+}
+
 .input-area,
 .output-preview {
   background: var(--bg-alt);

@@ -523,6 +523,14 @@ function updateBakeButton() {
   btn.disabled = !hasOperations;
 }
 
+function updateOutputButtons() {
+  const downloadBtn = document.getElementById('download-output-btn');
+  const useOutputBtn = document.getElementById('use-output-as-input-btn');
+  const hasOutput = outputPaths.length > 0;
+  downloadBtn.disabled = !hasOutput;
+  useOutputBtn.disabled = !hasOutput;
+}
+
 function triggerAutoBake() {
   if (document.getElementById('auto-bake')?.checked && inputFilenames.length > 0 && pipelines.some(p => p.recipe.length > 0)) {
     bake();
@@ -625,14 +633,19 @@ async function bake() {
         outputEl.innerHTML = `<img src="${data.output}" alt="Output" />`;
       }
       outputEl.classList.remove('error');
+      updateOutputButtons();
       playNotificationSound();
     } else {
       outputEl.innerHTML = `<span class="error-msg">Error: ${data.error}</span>`;
       outputEl.classList.add('error');
+      outputPaths = [];
+      updateOutputButtons();
     }
   } catch (err) {
     outputEl.innerHTML = `<span class="error-msg">Error: ${err.message}</span>`;
     outputEl.classList.add('error');
+    outputPaths = [];
+    updateOutputButtons();
   } finally {
     clearInterval(interval);
     btn.classList.remove('loading');
@@ -702,11 +715,13 @@ document.getElementById('input-preview').addEventListener('click', (e) => {
   if (img) {
     inputFilenames = [];
     inputPaths = [];
+    outputPaths = [];
     document.getElementById('input-preview').innerHTML = `
       <label for="image-input" class="upload-btn">Upload Image</label>
     `;
     document.getElementById('image-input').value = '';
     updateBakeButton();
+    updateOutputButtons();
   }
 });
 
