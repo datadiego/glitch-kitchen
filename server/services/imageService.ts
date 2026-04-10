@@ -44,6 +44,45 @@ export async function processImages(inputPath: string | string[], pipelines: Pip
   const paths = isArray ? inputPath : [inputPath];
   const clientDir = clientManager.getClientDir(clientId);
   
+  const hasAnimate = pipelines.some(p => p.recipe.some(op => op.id === 'animate'));
+  
+  if (hasAnimate && isArray && paths.length > 1) {
+    const animatePipeline = pipelines.find(p => p.recipe.some(op => op.id === 'animate'));
+    const animateOp = animatePipeline?.recipe.find(op => op.id === 'animate');
+    const delay = (animateOp?.args.delay as number) || 10;
+    const infinite = (animateOp?.args.infinite as string) === 'true';
+    
+    const inputFiles = paths.map(p => join(clientDir, p)).filter(existsSync);
+    if (inputFiles.length < 2) {
+      return error('Need at least 2 images for animation');
+    }
+    
+    const outputPath = join(clientDir, `output-${Date.now()}.gif`);
+    const delayStr = delay + '';
+    const loopArg = infinite ? '0' : '1';
+    
+    const result = await runMagick([
+      '-delay', delayStr,
+      '-loop', loopArg,
+      ...inputFiles,
+      outputPath
+    ]);
+    
+    if (!result.success) {
+      return error(result.error || 'Failed to create animation');
+    }
+    
+    const finalPipelines = pipelines.filter(p => !p.recipe.some(op => op.id === 'animate'));
+    if (finalPipelines.length > 0) {
+      const postResult = await processPipeline(finalPipelines[0], outputPath, outputPath, 'gif', clientDir);
+      if (!postResult.success) {
+        return error(postResult.error || 'Failed to process animation');
+      }
+    }
+    
+    return ok({ success: true, output: `/uploads/clients/${clientId}/${outputPath.split('/').pop()}` });
+  }
+  
   const results = await Promise.all(paths.map(async (path, index) => {
     const inputFile = join(clientDir, path);
     if (!existsSync(inputFile)) return { success: false, error: `File not found: ${path}`, output: '' };

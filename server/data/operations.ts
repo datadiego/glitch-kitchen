@@ -354,5 +354,15 @@ export const operations: Operation[] = [
       { name: 'palette', label: 'Palette', type: 'colors', default: ['#FFFFFF', '#000000'], maxColors: 16 },
       { name: 'dither', label: 'Dither', type: 'select', default: 'none', options: ['none', 'FloydSteinberg', 'Riemersma', 'ordered-2x2', 'ordered-3x3', 'ordered-4x4', 'ordered-8x8'] }
     ]
+  },
+  {
+    id: 'animate',
+    name: 'Animate GIF',
+    category: 'Animation',
+    description: 'Create animated GIF from input images',
+    args: [
+      { name: 'delay', label: 'Frame Delay (cs)', type: 'number', default: 10, min: 1, max: 100 },
+      { name: 'infinite', label: 'Loop', type: 'select', default: 'true', options: ['true', 'false'] }
+    ]
   }
 ];
