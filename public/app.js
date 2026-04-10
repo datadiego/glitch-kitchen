@@ -713,10 +713,7 @@ document.addEventListener('keydown', (e) => {
 document.getElementById('output-preview').addEventListener('click', (e) => {
   const img = e.target.closest('img');
   if (img) {
-    const modal = document.getElementById('img-modal');
-    const modalImg = document.getElementById('modal-img');
-    modalImg.src = img.src;
-    modal.classList.add('open');
+    window.open(img.src, '_blank');
   }
 });
 
