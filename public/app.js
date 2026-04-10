@@ -581,9 +581,12 @@ async function bake() {
   if (inputFilenames.length === 0) return;
   if (!clientId) return;
   
+  const btn = document.getElementById('bake-btn');
+  if (btn.disabled || btn.classList.contains('loading')) return;
+  
   document.title = 'baking...';
   
-  const btn = document.getElementById('bake-btn');
+  btn.disabled = true;
   btn.classList.add('loading');
   
   let randomStr = Math.random().toString(36).slice(2, 10);
@@ -634,6 +637,7 @@ async function bake() {
     clearInterval(interval);
     btn.classList.remove('loading');
     btn.textContent = 'Bake!';
+    btn.disabled = false;
     document.title = 'ready!';
   }
 }
