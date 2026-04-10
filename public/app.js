@@ -838,3 +838,34 @@ document.getElementById('use-output-as-input-btn').addEventListener('click', asy
   updateBakeButton();
   triggerAutoBake();
 });
+
+document.getElementById('download-script-btn').addEventListener('click', async () => {
+  if (!pipelines.some(p => p.recipe.length > 0)) {
+    alert('Add some operations to your pipeline first!');
+    return;
+  }
+
+  try {
+    const res = await fetch('/api/download-script', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ pipelines })
+    });
+
+    if (!res.ok) {
+      throw new Error('Failed to generate script');
+    }
+
+    const script = await res.text();
+    const blob = new Blob([script], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'glitch-kitchen.sh';
+    a.click();
+    URL.revokeObjectURL(url);
+  } catch (err) {
+    console.error('Download script failed:', err);
+    alert('Failed to generate script');
+  }
+});

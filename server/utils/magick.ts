@@ -205,3 +205,57 @@ export function buildMagickCommand(operations: OperationRecipe[]): string[] {
   
   return parts;
 }
+
+export function buildMagickCommandString(operations: OperationRecipe[]): string {
+  const parts = buildMagickCommand(operations);
+  return 'magick ' + parts.join(' ');
+}
+
+export function generateScript(pipelines: { name: string; repeat: number; recipe: OperationRecipe[] }[]): string {
+  const lines: string[] = [
+    '#!/bin/bash',
+    '',
+    '# Glitch Kitchen Script',
+    '# Generated automatically',
+    '',
+    'set -e',
+    '',
+    'INPUT="${1:-input.png}"',
+    'BASENAME="${INPUT%.*}"',
+    'EXT="${INPUT##*.}"',
+    ''
+  ];
+
+  let outputVar = '$INPUT';
+  let intermediateCount = 0;
+
+  for (let p = 0; p < pipelines.length; p++) {
+    const pipeline = pipelines[p];
+    const pipelineName = pipeline.name || `Pipeline ${p + 1}`;
+
+    lines.push(`# ${pipelineName}`);
+    lines.push('');
+
+    for (let r = 0; r < pipeline.repeat; r++) {
+      const currentInput = outputVar;
+      const currentOutput = p === pipelines.length - 1 && r === pipeline.repeat - 1
+        ? '${BASENAME}_glitched.${EXT}'
+        : intermediateCount === 0
+          ? '${BASENAME}_step1.${EXT}'
+          : '${BASENAME}_step' + (intermediateCount + 1) + '.${EXT}';
+
+      if (pipeline.recipe.length > 0) {
+        const cmdParts = buildMagickCommand(pipeline.recipe);
+        const cmdStr = 'magick ' + currentInput + ' ' + cmdParts.join(' ') + ' ' + currentOutput;
+        lines.push(cmdStr);
+        outputVar = currentOutput;
+        intermediateCount++;
+      }
+    }
+    lines.push('');
+  }
+
+  lines.push('echo "Done! Output: ${BASENAME}_glitched.${EXT}"');
+
+  return lines.join('\n');
+}
