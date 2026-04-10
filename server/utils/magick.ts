@@ -31,10 +31,14 @@ export function buildMagickCommand(operations: OperationRecipe[]): string[] {
     const resolvedArgs = resolveOperationArgs(op.args);
     switch (op.id) {
       case 'resize':
-        const { scale, interpolate, filter } = resolvedArgs as { scale: number; interpolate: string; filter: string };
-        parts.push('-filter', filter);
-        parts.push('-interpolate', interpolate);
-        parts.push('-resize', `${scale}%`);
+        const resizeArgs = resolvedArgs as { width: number; height: number; interpolate: string; filter: string };
+        parts.push('-filter', resizeArgs.filter);
+        parts.push('-interpolate', resizeArgs.interpolate);
+        parts.push('-resize', `${resizeArgs.width}x${resizeArgs.height}`);
+        break;
+      case 'scale':
+        const scaleArgs = resolvedArgs as { scale: number };
+        parts.push('-scale', `${scaleArgs.scale}%`);
         break;
       case 'rotate':
         parts.push('-rotate', String(resolvedArgs.degrees));

@@ -7,9 +7,19 @@ export const operations: Operation[] = [
     category: 'Transform',
     description: 'Change image dimensions',
     args: [
-      { name: 'scale', label: 'Scale (%)', type: 'number', default: 100, min: 1, max: 500 },
+      { name: 'width', label: 'Width (px)', type: 'number', default: 800, min: 1, max: 10000 },
+      { name: 'height', label: 'Height (px)', type: 'number', default: 600, min: 1, max: 10000 },
       { name: 'interpolate', label: 'Interpolate', type: 'select', default: 'bilinear', options: ['bilinear', 'bicubic', 'nearest', 'average'] },
       { name: 'filter', label: 'Filter', type: 'select', default: 'lanczos', options: ['lanczos', 'catrom', 'mitchell', 'spline', 'cubic', 'triangle', 'box', 'point'] }
+    ]
+  },
+  {
+    id: 'scale',
+    name: 'Scale',
+    category: 'Transform',
+    description: 'Scale image by percentage (fast, no filter)',
+    args: [
+      { name: 'scale', label: 'Scale (%)', type: 'number', default: 100, min: 1, max: 500 }
     ]
   },
   {

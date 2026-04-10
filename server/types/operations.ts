@@ -1,7 +1,7 @@
 export interface Argument {
   name: string;
   label: string;
-  type: 'number' | 'string' | 'select' | 'colors';
+  type: 'number' | 'string' | 'select' | 'colors' | 'range';
   default: string | number | string[];
   min?: number;
   max?: number;

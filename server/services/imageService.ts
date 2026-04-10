@@ -17,7 +17,9 @@ export async function processPipeline(
     return { success: true, output: input };
   }
   
-  const ext = recipe.find(op => op.id === 'format')?.args.type as string || finalExt;
+  const hasQuality = recipe.some(op => op.id === 'quality');
+  const hasFormat = recipe.find(op => op.id === 'format')?.args.type as string;
+  const ext = hasFormat || (hasQuality ? 'jpg' : finalExt);
   let currentInput = input;
   
   for (let i = 0; i < repeat; i++) {
@@ -46,7 +48,10 @@ export async function processImages(inputPath: string | string[], pipelines: Pip
     const inputFile = join(clientDir, path);
     if (!existsSync(inputFile)) return { success: false, error: `File not found: ${path}`, output: '' };
     
-    const finalExt = pipelines[pipelines.length - 1]?.recipe?.find(op => op.id === 'format')?.args.type as string || 'png';
+    const lastRecipe = pipelines[pipelines.length - 1]?.recipe || [];
+    const lastHasQuality = lastRecipe.some(op => op.id === 'quality');
+    const lastHasFormat = lastRecipe.find(op => op.id === 'format')?.args.type as string;
+    const finalExt = lastHasFormat || (lastHasQuality ? 'jpg' : 'png');
     const outputPath = join(clientDir, `output-${Date.now()}-${index}.${finalExt}`);
     
     let currentInput = inputFile;
@@ -54,9 +59,11 @@ export async function processImages(inputPath: string | string[], pipelines: Pip
       const pipeline = pipelines[i];
       if (!pipeline) continue;
       const nextPipeline = pipelines[i + 1];
-      const pipelineExt = pipeline.recipe.find(op => op.id === 'format')?.args.type as string 
-        || (nextPipeline?.recipe.find(op => op.id === 'format')?.args.type as string)
-        || finalExt;
+      const pipelineHasQuality = pipeline.recipe.some(op => op.id === 'quality');
+      const pipelineHasFormat = pipeline.recipe.find(op => op.id === 'format')?.args.type as string;
+      const nextHasFormat = nextPipeline?.recipe.find(op => op.id === 'format')?.args.type as string;
+      const nextHasQuality = nextPipeline?.recipe.some(op => op.id === 'quality') as boolean;
+      const pipelineExt = pipelineHasFormat || (pipelineHasQuality ? 'jpg' : (nextHasFormat || (nextHasQuality ? 'jpg' : finalExt)));
       
       const result = await processPipeline(pipeline, currentInput, outputPath, pipelineExt, clientDir);
       if (!result.success) return { success: false, error: result.error, output: '' };
