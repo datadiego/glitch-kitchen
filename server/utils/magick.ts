@@ -160,6 +160,23 @@ export function buildMagickCommand(operations: OperationRecipe[]): string[] {
           '-combine'
         );
         break;
+      case 'shift-rgb':
+        const rgbArgs = resolvedArgs as { redX: number; redY: number; greenX: number; greenY: number; blueX: number; blueY: number };
+        parts.push('-colorspace', 'RGB', '-separate');
+        const redX = rgbArgs.redX || 0;
+        const redY = rgbArgs.redY || 0;
+        const greenX = rgbArgs.greenX || 0;
+        const greenY = rgbArgs.greenY || 0;
+        const blueX = rgbArgs.blueX || 0;
+        const blueY = rgbArgs.blueY || 0;
+        parts.push(
+          '(', '-clone', '0', '-roll', `+${redX}+${redY}`, ')',
+          '(', '-clone', '1', '-roll', `+${greenX}+${greenY}`, ')',
+          '(', '-clone', '2', '-roll', `+${blueX}+${blueY}`, ')',
+          '-delete', '0-2',
+          '-combine'
+        );
+        break;
       case 'implode':
         parts.push('-implode', String(resolvedArgs.amount));
         break;

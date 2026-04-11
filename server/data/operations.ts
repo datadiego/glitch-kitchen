@@ -261,6 +261,20 @@ export const operations: Operation[] = [
     ]
   },
   {
+    id: 'shift-rgb',
+    name: 'Shift (RGB)',
+    category: 'Distort',
+    description: 'Shift RGB channels independently for glitch effect',
+    args: [
+      { name: 'redX', label: 'Red X', type: 'number', default: 0, min: -100, max: 100 },
+      { name: 'redY', label: 'Red Y', type: 'number', default: 0, min: -100, max: 100 },
+      { name: 'greenX', label: 'Green X', type: 'number', default: 0, min: -100, max: 100 },
+      { name: 'greenY', label: 'Green Y', type: 'number', default: 0, min: -100, max: 100 },
+      { name: 'blueX', label: 'Blue X', type: 'number', default: 0, min: -100, max: 100 },
+      { name: 'blueY', label: 'Blue Y', type: 'number', default: 0, min: -100, max: 100 }
+    ]
+  },
+  {
     id: 'flop',
     name: 'Flop',
     category: 'Transform',
