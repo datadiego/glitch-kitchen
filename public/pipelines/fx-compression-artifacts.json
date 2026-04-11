@@ -1,0 +1,30 @@
+{
+  "pipelines": [
+    {
+      "id": 1775896692294,
+      "name": "Scale to half",
+      "repeat": 1,
+      "recipe": [
+        {
+          "id": "scale",
+          "args": {
+            "scale": "50"
+          }
+        }
+      ]
+    },
+    {
+      "id": 1775896648622,
+      "name": "Compress 200 times with random quality",
+      "repeat": 200,
+      "recipe": [
+        {
+          "id": "quality",
+          "args": {
+            "value": "20:90"
+          }
+        }
+      ]
+    }
+  ]
+}

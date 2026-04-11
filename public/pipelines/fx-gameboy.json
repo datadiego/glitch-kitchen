@@ -1,0 +1,59 @@
+{
+  "pipelines": [
+    {
+      "id": 1775897477200,
+      "name": "Prepare",
+      "repeat": 1,
+      "recipe": [
+        {
+          "id": "level",
+          "args": {
+            "black": "25",
+            "white": 100,
+            "gamma": 1
+          }
+        },
+        {
+          "id": "scale",
+          "args": {
+            "scale": "50"
+          }
+        }
+      ]
+    },
+    {
+      "id": 1775897599812,
+      "name": "Reduce colors and tint",
+      "repeat": 1,
+      "recipe": [
+        {
+          "id": "dither",
+          "args": {
+            "method": "FloydSteinberg",
+            "levels": "4"
+          }
+        },
+        {
+          "id": "tint",
+          "args": {
+            "color": "#00FF00",
+            "amount": 100
+          }
+        }
+      ]
+    },
+    {
+      "id": 1775897602761,
+      "name": "Scale it back",
+      "repeat": 1,
+      "recipe": [
+        {
+          "id": "scale",
+          "args": {
+            "scale": "200"
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "pipelines": [
+    {
+      "id": 1775897675328,
+      "name": "Use the min:max syntax on inputs for random values",
+      "repeat": 1,
+      "recipe": [
+        {
+          "id": "saturate",
+          "args": {
+            "amount": "50:500"
+          }
+        }
+      ]
+    },
+    {
+      "id": 1775898018047,
+      "name": "Swirl at a random angle",
+      "repeat": 1,
+      "recipe": [
+        {
+          "id": "swirl",
+          "args": {
+            "degrees": "-180:180"
+          }
+        }
+      ]
+    }
+  ]
+}
