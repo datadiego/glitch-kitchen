@@ -582,17 +582,69 @@ async function handleImageUpload(e) {
       inputFilenames.push(data.filename);
       inputPaths.push(data.path);
       
+      const imgContainer = document.createElement('div');
+      imgContainer.style.position = 'relative';
+      imgContainer.classList.add('img-drag');
+      
+      const handle = document.createElement('span');
+      handle.className = 'img-handle';
+      handle.textContent = '⋮⋮';
+      imgContainer.appendChild(handle);
+      
       const img = document.createElement('img');
       img.src = data.path;
       img.alt = file.name;
-      multiPreview.appendChild(img);
+      img.dataset.path = data.path;
+      img.dataset.filename = data.filename;
+      imgContainer.appendChild(img);
+      
+      multiPreview.appendChild(imgContainer);
     } catch (err) {
       console.error('Upload failed:', err);
     }
   }
   
+  initImageReorder();
   updateBakeButton();
   triggerAutoBake();
+}
+
+function initImageReorder() {
+  const multiPreview = document.querySelector('.multi-preview');
+  if (!multiPreview) return;
+  
+  const existingDrake = dragulaInstances.find(d => d._el === multiPreview);
+  if (existingDrake) {
+    existingDrake.destroy();
+    dragulaInstances = dragulaInstances.filter(d => d._el !== multiPreview);
+  }
+  
+  const imgDrake = dragula([multiPreview], {
+    accepts: () => true,
+    revertOnSpill: true,
+    direction: 'vertical'
+  });
+  
+  imgDrake.on('drop', (el, target, source, sibling) => {
+    const containers = Array.from(multiPreview.children);
+    const newFilenames = [];
+    const newPaths = [];
+    
+    containers.forEach(container => {
+      const img = container.querySelector('img');
+      if (img && img.dataset.filename && img.dataset.path) {
+        newFilenames.push(img.dataset.filename);
+        newPaths.push(img.dataset.path);
+      }
+    });
+    
+    inputFilenames = newFilenames;
+    inputPaths = newPaths;
+    
+    triggerAutoBake();
+  });
+  
+  dragulaInstances.push(imgDrake);
 }
 
 async function bake() {
@@ -861,15 +913,29 @@ document.getElementById('use-output-as-input-btn').addEventListener('click', asy
       inputFilenames.push(data.filename);
       inputPaths.push(data.path);
       
+      const imgContainer = document.createElement('div');
+      imgContainer.style.position = 'relative';
+      imgContainer.classList.add('img-drag');
+      
+      const handle = document.createElement('span');
+      handle.className = 'img-handle';
+      handle.textContent = '⋮⋮';
+      imgContainer.appendChild(handle);
+      
       const img = document.createElement('img');
       img.src = data.path;
       img.alt = filename;
-      multiPreview.appendChild(img);
+      img.dataset.path = data.path;
+      img.dataset.filename = data.filename;
+      imgContainer.appendChild(img);
+      
+      multiPreview.appendChild(imgContainer);
     } catch (err) {
       console.error('Upload failed:', err);
     }
   }
   
+  initImageReorder();
   updateBakeButton();
   triggerAutoBake();
 });
