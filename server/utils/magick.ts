@@ -142,24 +142,6 @@ export function buildMagickCommand(operations: OperationRecipe[]): string[] {
       case 'flop':
         parts.push('-flop');
         break;
-      case 'colorspace':
-        parts.push('-colorspace', String(resolvedArgs.space));
-        break;
-      case 'channel-shift':
-        const shiftArgs = resolvedArgs as { colorspace: string; ch1X: number; ch1Y: number; ch2X: number; ch2Y: number };
-        parts.push('-colorspace', shiftArgs.colorspace, '-separate');
-        const ch1X = shiftArgs.ch1X || 0;
-        const ch1Y = shiftArgs.ch1Y || 0;
-        const ch2X = shiftArgs.ch2X || 0;
-        const ch2Y = shiftArgs.ch2Y || 0;
-        parts.push(
-          '(', '-clone', '0', ')',
-          '(', '-clone', '1', '-roll', `+${ch1X}+${ch1Y}`, ')',
-          '(', '-clone', '2', '-roll', `+${ch2X}+${ch2Y}`, ')',
-          '-delete', '0-2',
-          '-combine'
-        );
-        break;
       case 'shift-rgb':
         const rgbArgs = resolvedArgs as { redX: number; redY: number; greenX: number; greenY: number; blueX: number; blueY: number };
         parts.push('-colorspace', 'RGB', '-separate', '-bias', '0', '-set', 'colorspace', 'RGB');
@@ -178,6 +160,45 @@ export function buildMagickCommand(operations: OperationRecipe[]): string[] {
           '-combine'
         );
         break;
+      case 'shift-cmyk':
+        const cmykArgs = resolvedArgs as { cyanX: number; cyanY: number; magentaX: number; magentaY: number; yellowX: number; yellowY: number; blackX: number; blackY: number };
+        parts.push('-colorspace', 'CMYK', '-separate', '-bias', '0', '-set', 'colorspace', 'CMYK');
+        const cyanX = cmykArgs.cyanX || 0;
+        const cyanY = cmykArgs.cyanY || 0;
+        const magentaX = cmykArgs.magentaX || 0;
+        const magentaY = cmykArgs.magentaY || 0;
+        const yellowX = cmykArgs.yellowX || 0;
+        const yellowY = cmykArgs.yellowY || 0;
+        const blackX = cmykArgs.blackX || 0;
+        const blackY = cmykArgs.blackY || 0;
+        parts.push(
+          '(', '-clone', '0', '-roll', `+${cyanX}+${cyanY}`, ')',
+          '(', '-clone', '1', '-roll', `+${magentaX}+${magentaY}`, ')',
+          '(', '-clone', '2', '-roll', `+${yellowX}+${yellowY}`, ')',
+          '(', '-clone', '3', '-roll', `+${blackX}+${blackY}`, ')',
+          '-delete', '0-3',
+          '-set', 'colorspace', 'CMYK',
+          '-combine'
+        );
+        break;
+      case 'shift-ycbcr':
+        const ycbcrArgs = resolvedArgs as { yX: number; yY: number; cbX: number; cbY: number; crX: number; crY: number };
+        parts.push('-colorspace', 'YCbCr', '-separate', '-bias', '0', '-set', 'colorspace', 'YCbCr');
+        const yX = ycbcrArgs.yX || 0;
+        const yY = ycbcrArgs.yY || 0;
+        const cbX = ycbcrArgs.cbX || 0;
+        const cbY = ycbcrArgs.cbY || 0;
+        const crX = ycbcrArgs.crX || 0;
+        const crY = ycbcrArgs.crY || 0;
+        parts.push(
+          '(', '-clone', '0', '-roll', `+${yX}+${yY}`, ')',
+          '(', '-clone', '1', '-roll', `+${cbX}+${cbY}`, ')',
+          '(', '-clone', '2', '-roll', `+${crX}+${crY}`, ')',
+          '-delete', '0-2',
+          '-set', 'colorspace', 'YCbCr',
+          '-combine'
+        );
+        break;
       case 'implode':
         parts.push('-implode', String(resolvedArgs.amount));
         break;
@@ -189,9 +210,6 @@ export function buildMagickCommand(operations: OperationRecipe[]): string[] {
         if (resolvedArgs.noise !== 'gaussian') {
           parts.push('+noise', String(resolvedArgs.noise).trim());
         }
-        break;
-      case 'compress':
-        parts.push('-compress', String(resolvedArgs.type));
         break;
       case 'shear':
         parts.push('-shear', `${resolvedArgs.x}x${resolvedArgs.y}`);

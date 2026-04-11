@@ -239,32 +239,10 @@ export const operations: Operation[] = [
     args: []
   },
   {
-    id: 'colorspace',
-    name: 'Colorspace',
-    category: 'Color',
-    description: 'Change image colorspace',
-    args: [
-      { name: 'space', label: 'Colorspace', type: 'select', default: 'sRGB', options: ['sRGB', 'RGB', 'CMYK', 'Gray', 'LAB', 'XYZ', 'YCbCr', 'YUV'] }
-    ]
-  },
-  {
-    id: 'channel-shift',
-    name: 'Channel Shift',
-    category: 'Distort',
-    description: 'Shift chrominance channels for glitch effect',
-    args: [
-      { name: 'colorspace', label: 'Colorspace', type: 'select', default: 'YCbCr', options: ['RGB', 'YCbCr', 'CMYK', 'LAB', 'XYZ', 'YUV'] },
-      { name: 'ch1X', label: 'Ch1 X Offset', type: 'number', default: 0, min: -100, max: 100 },
-      { name: 'ch1Y', label: 'Ch1 Y Offset', type: 'number', default: 0, min: -100, max: 100 },
-      { name: 'ch2X', label: 'Ch2 X Offset', type: 'number', default: 10, min: -100, max: 100 },
-      { name: 'ch2Y', label: 'Ch2 Y Offset', type: 'number', default: 10, min: -100, max: 100 }
-    ]
-  },
-  {
     id: 'shift-rgb',
     name: 'Shift (RGB)',
     category: 'Distort',
-    description: 'Shift RGB channels independently for glitch effect',
+    description: 'Shift RGB channels',
     args: [
       { name: 'redX', label: 'Red X', type: 'number', default: 0, min: -100, max: 100 },
       { name: 'redY', label: 'Red Y', type: 'number', default: 0, min: -100, max: 100 },
@@ -272,6 +250,36 @@ export const operations: Operation[] = [
       { name: 'greenY', label: 'Green Y', type: 'number', default: 0, min: -100, max: 100 },
       { name: 'blueX', label: 'Blue X', type: 'number', default: 0, min: -100, max: 100 },
       { name: 'blueY', label: 'Blue Y', type: 'number', default: 0, min: -100, max: 100 }
+    ]
+  },
+  {
+    id: 'shift-cmyk',
+    name: 'Shift (CMYK)',
+    category: 'Distort',
+    description: 'Shift CMYK channels',
+    args: [
+      { name: 'cyanX', label: 'Cyan X', type: 'number', default: 0, min: -100, max: 100 },
+      { name: 'cyanY', label: 'Cyan Y', type: 'number', default: 0, min: -100, max: 100 },
+      { name: 'magentaX', label: 'Magenta X', type: 'number', default: 0, min: -100, max: 100 },
+      { name: 'magentaY', label: 'Magenta Y', type: 'number', default: 0, min: -100, max: 100 },
+      { name: 'yellowX', label: 'Yellow X', type: 'number', default: 0, min: -100, max: 100 },
+      { name: 'yellowY', label: 'Yellow Y', type: 'number', default: 0, min: -100, max: 100 },
+      { name: 'blackX', label: 'Black X', type: 'number', default: 0, min: -100, max: 100 },
+      { name: 'blackY', label: 'Black Y', type: 'number', default: 0, min: -100, max: 100 }
+    ]
+  },
+  {
+    id: 'shift-ycbcr',
+    name: 'Shift (YCbCr)',
+    category: 'Distort',
+    description: 'Shift YCbCr channels',
+    args: [
+      { name: 'yX', label: 'Y (Luma) X', type: 'number', default: 0, min: -100, max: 100 },
+      { name: 'yY', label: 'Y (Luma) Y', type: 'number', default: 0, min: -100, max: 100 },
+      { name: 'cbX', label: 'Cb X', type: 'number', default: 0, min: -100, max: 100 },
+      { name: 'cbY', label: 'Cb Y', type: 'number', default: 0, min: -100, max: 100 },
+      { name: 'crX', label: 'Cr X', type: 'number', default: 0, min: -100, max: 100 },
+      { name: 'crY', label: 'Cr Y', type: 'number', default: 0, min: -100, max: 100 }
     ]
   },
   {
@@ -308,15 +316,6 @@ export const operations: Operation[] = [
     args: [
       { name: 'noise', label: 'Noise', type: 'select', default: 'gaussian', options: ['gaussian', 'impulse', 'laplacian', 'multiplicative', 'poisson', 'random'] },
       { name: 'amount', label: 'Amount', type: 'number', default: 0.5, min: 0, max: 1 }
-    ]
-  },
-  {
-    id: 'compress',
-    name: 'Compress',
-    category: 'Compression',
-    description: 'Set compression type for output',
-    args: [
-      { name: 'type', label: 'Type', type: 'select', default: 'none', options: ['none', 'zip', 'bzip', 'fax', 'group4', 'jpeg', 'lossless', 'lzw', 'rle'] }
     ]
   },
   {
