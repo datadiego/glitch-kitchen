@@ -162,7 +162,7 @@ export function buildMagickCommand(operations: OperationRecipe[]): string[] {
         break;
       case 'shift-rgb':
         const rgbArgs = resolvedArgs as { redX: number; redY: number; greenX: number; greenY: number; blueX: number; blueY: number };
-        parts.push('-colorspace', 'RGB', '-separate');
+        parts.push('-colorspace', 'RGB', '-separate', '-bias', '0', '-set', 'colorspace', 'RGB');
         const redX = rgbArgs.redX || 0;
         const redY = rgbArgs.redY || 0;
         const greenX = rgbArgs.greenX || 0;
@@ -174,6 +174,7 @@ export function buildMagickCommand(operations: OperationRecipe[]): string[] {
           '(', '-clone', '1', '-roll', `+${greenX}+${greenY}`, ')',
           '(', '-clone', '2', '-roll', `+${blueX}+${blueY}`, ')',
           '-delete', '0-2',
+          '-set', 'colorspace', 'RGB',
           '-combine'
         );
         break;
