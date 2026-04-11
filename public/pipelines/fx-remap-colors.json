@@ -1,0 +1,37 @@
+{
+  "pipelines": [
+    {
+      "id": 1775924771420,
+      "name": "Remap colors",
+      "repeat": 1,
+      "recipe": [
+        {
+          "id": "scale",
+          "args": {
+            "scale": "50"
+          }
+        },
+        {
+          "id": "level",
+          "args": {
+            "black": "10",
+            "white": 100,
+            "gamma": 1
+          }
+        },
+        {
+          "id": "remap",
+          "args": {
+            "palette": [
+              "#ff0000",
+              "#000000",
+              "#7300ff",
+              "#00ff33"
+            ],
+            "dither": "ordered-2x2"
+          }
+        }
+      ]
+    }
+  ]
+}

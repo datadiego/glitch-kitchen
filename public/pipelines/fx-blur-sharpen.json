@@ -1,0 +1,30 @@
+{
+  "pipelines": [
+    {
+      "id": 1775926119374,
+      "name": "Blur the image several times",
+      "repeat": 20,
+      "recipe": [
+        {
+          "id": "blur",
+          "args": {
+            "radius": 5
+          }
+        }
+      ]
+    },
+    {
+      "id": 1775926338842,
+      "name": "Sharpen it",
+      "repeat": 20,
+      "recipe": [
+        {
+          "id": "sharpen",
+          "args": {
+            "radius": "5"
+          }
+        }
+      ]
+    }
+  ]
+}
