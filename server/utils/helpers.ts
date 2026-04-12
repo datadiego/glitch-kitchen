@@ -54,6 +54,19 @@ class ClientManager {
     this.clients.delete(clientId);
   }
 
+  async cleanupClient(clientId: string): Promise<void> {
+    try {
+      const clientDir = this.getClientDir(clientId);
+      if (existsSync(clientDir)) {
+        rmSync(clientDir, { recursive: true, force: true });
+        console.log(`Cleaned up client directory: ${clientId}`);
+      }
+    } catch (err) {
+      console.error(`Error cleaning up client ${clientId}:`, err);
+    }
+    this.clients.delete(clientId);
+  }
+
   private startCleanup(): void {
     if (this.cleanupInterval) return;
     this.cleanupInterval = setInterval(async () => {

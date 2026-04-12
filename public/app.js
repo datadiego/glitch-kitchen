@@ -4,6 +4,7 @@ let inputPaths = [];
 let outputPaths = [];
 let dragulaInstances = [];
 let clientId = null;
+let ws = null;
 
 async function initClient() {
   try {
@@ -14,8 +15,33 @@ async function initClient() {
     console.log('Client data:', data);
     clientId = data.clientId;
     console.log('Client ID set to:', clientId);
+    connectWebSocket();
   } catch (err) {
     console.error('Failed to init client:', err);
+  }
+}
+
+function connectWebSocket() {
+  const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+  ws = new WebSocket(`${protocol}//${window.location.host}?clientId=${clientId}`);
+  
+  ws.onopen = () => {
+    console.log('WebSocket connected');
+  };
+  
+  ws.onclose = () => {
+    console.log('WebSocket closed');
+  };
+  
+  ws.onerror = (err) => {
+    console.error('WebSocket error:', err);
+  };
+}
+
+function disconnectWebSocket() {
+  if (ws) {
+    ws.close();
+    ws = null;
   }
 }
 
@@ -993,4 +1019,8 @@ document.getElementById('download-script-btn').addEventListener('click', async (
     console.error('Download script failed:', err);
     alert('Failed to generate script');
   }
+});
+
+window.addEventListener('beforeunload', () => {
+  disconnectWebSocket();
 });
