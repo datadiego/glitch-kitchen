@@ -1,43 +1,50 @@
-import { operations } from '../data/operations';
-import { processImages, uploadImage } from '../services/imageService';
-import type { Pipeline } from '../types/operations';
-import { error, ok, clientManager } from '../utils/helpers';
+import { Request, Response } from 'express';
+import { operations } from '../data/operations.js';
+import { processImages } from '../services/imageService.js';
+import { clientManager } from '../utils/helpers.js';
 
-export async function getOperations() {
-  return ok(operations);
+export function getOperations(_req: Request, res: Response) {
+  res.json(operations);
 }
 
-export async function handleCreateClient(): Promise<Response> {
+export async function handleCreateClient(_req: Request, res: Response) {
   const clientId = await clientManager.createClient();
-  return ok({ clientId });
+  res.json({ clientId });
 }
 
-export async function handleProcessRequest(req: Request): Promise<Response> {
-  const body = await req.json() as { inputPath?: string | string[]; pipelines?: Pipeline[]; clientId?: string };
-  const inputPath = body.inputPath;
-  const pipelines = body.pipelines;
-  const clientId = body.clientId;
+export async function handleProcessRequest(req: Request, res: Response) {
+  const { inputPath, pipelines, clientId } = req.body;
   
   if (!inputPath || !pipelines || !Array.isArray(pipelines)) {
-    return error('Missing parameters');
+    return res.status(400).json({ error: 'Missing parameters' });
   }
   
   if (!clientId) {
-    return error('clientId required');
+    return res.status(400).json({ error: 'clientId required' });
   }
   
   clientManager.touch(clientId);
-  return processImages(inputPath, pipelines, clientId);
+  const result = await processImages(inputPath, pipelines, clientId);
+  res.json(result);
 }
 
-export async function handleUpload(req: Request): Promise<Response> {
-  const url = new URL(req.url);
-  const clientId = url.searchParams.get('clientId');
-  if (!clientId) return error('clientId required');
+export function handleUpload(req: Request, res: Response) {
+  const { clientId } = req.params;
+  if (!clientId) {
+    return res.status(400).json({ error: 'clientId required' });
+  }
   
-  const file = (await req.formData()).get('image') as File;
-  if (!file) return error('No image provided');
+  const file = req.file;
+  if (!file) {
+    return res.status(400).json({ error: 'No image provided' });
+  }
   
   clientManager.touch(clientId);
-  return uploadImage(file, clientId);
+  const filename = file.filename;
+  const relativePath = `/uploads/clients/${clientId}/${filename}`;
+  res.json({ 
+    id: filename.replace(/\.[^.]+$/, ''), 
+    filename, 
+    path: relativePath 
+  });
 }

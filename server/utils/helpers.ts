@@ -1,12 +1,12 @@
 import { spawn } from 'child_process';
 import { mkdir, readdir, unlink } from 'fs/promises';
 import { existsSync, rmSync } from 'fs';
-import { mkdir, readdir, unlink } from 'fs/promises';
-import { existsSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
 export const UPLOAD_DIR = join(__dirname, '../../uploads');
 export const CLIENTS_DIR = join(UPLOAD_DIR, 'clients');
 export const PUBLIC_DIR = join(__dirname, '../../public');
@@ -70,13 +70,6 @@ class ClientManager {
 }
 
 export const clientManager = new ClientManager();
-
-(async () => {
-  await clientManager.init();
-})();
-
-export const error = (msg: string, status = 400) => Response.json({ error: msg }, { status });
-export const ok = (data: unknown) => Response.json(data);
 
 export async function runMagick(args: string[]): Promise<{ success: boolean; error?: string }> {
   return new Promise((resolve) => {

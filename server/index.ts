@@ -1,34 +1,43 @@
-import { serve } from 'bun';
+import express from 'express';
+import cors from 'cors';
 import { join } from 'path';
-import { existsSync } from 'fs';
-import { UPLOAD_DIR, PUBLIC_DIR, CLIENTS_DIR, error } from './utils/helpers';
-import { routes } from './routes/index';
+import { router } from './routes/index.js';
+import { clientManager } from './utils/helpers.js';
 
-const server = serve({
-  port: 3000,
-  async fetch(req) {
-    const { pathname } = new URL(req.url);
-    console.log(`${req.method} ${pathname}`);
+const UPLOAD_DIR = join(process.cwd(), 'uploads');
+const PUBLIC_DIR = join(process.cwd(), 'public');
+const CLIENTS_DIR = join(UPLOAD_DIR, 'clients');
 
-    if (pathname.startsWith('/uploads/clients/')) {
-      const filepath = join(CLIENTS_DIR, pathname.replace('/uploads/clients/', ''));
-      return existsSync(filepath) ? new Response(Bun.file(filepath)) : error('Not found', 404);
-    }
+console.log('UPLOAD_DIR:', UPLOAD_DIR);
+console.log('CLIENTS_DIR:', CLIENTS_DIR);
 
-    if (pathname.startsWith('/uploads/')) {
-      const filepath = join(UPLOAD_DIR, pathname.replace('/uploads/', ''));
-      return existsSync(filepath) ? new Response(Bun.file(filepath)) : error('Not found', 404);
-    }
+const app = express();
+const PORT = process.env.PORT || 3000;
 
-    if (pathname.startsWith('/api/')) {
-      const route = routes.find(r => r.path === pathname && r.method === req.method);
-      if (route) return route.handler(req);
-      return error('Method not allowed', 405);
-    }
+app.use(cors());
+app.use(express.json());
+app.use(express.static(PUBLIC_DIR));
+app.use('/uploads', express.static(UPLOAD_DIR));
+app.use('/uploads/clients', express.static(CLIENTS_DIR));
 
-    const filePath = join(PUBLIC_DIR, pathname === '/' ? '/index.html' : pathname);
-    return existsSync(filePath) ? new Response(Bun.file(filePath)) : error('Not found', 404);
-  },
+app.use('/', router);
+
+app.use((err: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
+  console.error('Error:', err.message);
+  res.status(500).json({ error: err.message || 'Internal server error' });
 });
 
-console.log(`Glitch Kitchen running at http://localhost:${server.port}`);
+async function start() {
+  try {
+    await clientManager.init();
+    console.log('Client manager initialized');
+    app.listen(PORT, () => {
+      console.log(`Glitch Kitchen running at http://localhost:${PORT}`);
+    });
+  } catch (err) {
+    console.error('Failed to start:', err);
+    process.exit(1);
+  }
+}
+
+start();

@@ -334,7 +334,7 @@ export const operations: Operation[] = [
     category: 'Color',
     description: 'Apply a color tint to the image',
     args: [
-      { name: 'color', label: 'Color', type: 'color', default: '#FF0000' },
+      { name: 'color', label: 'Color', type: 'string', default: '#FF0000' },
       { name: 'amount', label: 'Amount (%)', type: 'number', default: 100, min: 0, max: 200 }
     ]
   },

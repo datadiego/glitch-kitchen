@@ -1,8 +1,9 @@
 import { join } from 'path';
 import { existsSync } from 'fs';
-import { UPLOAD_DIR, clientManager, runMagick, ok, error } from '../utils/helpers';
-import { buildMagickCommand } from '../utils/magick';
-import type { Pipeline } from '../types/operations';
+import { UPLOAD_DIR, clientManager, runMagick } from '../utils/helpers.js';
+import { buildMagickCommand } from '../utils/magick.js';
+import type { Pipeline } from '../types/operations.js';
+import type { MulterFile } from '../types/multer.js';
 
 export async function processPipeline(
   pipeline: Pipeline,
@@ -39,7 +40,7 @@ export async function processPipeline(
   return { success: true, output: outputPath };
 }
 
-export async function processImages(inputPath: string | string[], pipelines: Pipeline[], clientId: string): Promise<Response> {
+export async function processImages(inputPath: string | string[], pipelines: Pipeline[], clientId: string) {
   const isArray = Array.isArray(inputPath);
   const paths = isArray ? inputPath : [inputPath];
   const clientDir = clientManager.getClientDir(clientId);
@@ -54,7 +55,7 @@ export async function processImages(inputPath: string | string[], pipelines: Pip
     
     const inputFiles = paths.map(p => join(clientDir, p)).filter(existsSync);
     if (inputFiles.length < 2) {
-      return error('Need at least 2 images for animation');
+      return { success: false, error: 'Need at least 2 images for animation' };
     }
     
     const outputPath = join(clientDir, `output-${Date.now()}.gif`);
@@ -69,18 +70,18 @@ export async function processImages(inputPath: string | string[], pipelines: Pip
     ]);
     
     if (!result.success) {
-      return error(result.error || 'Failed to create animation');
+      return { success: false, error: result.error };
     }
     
     const finalPipelines = pipelines.filter(p => !p.recipe.some(op => op.id === 'animate'));
     if (finalPipelines.length > 0) {
       const postResult = await processPipeline(finalPipelines[0], outputPath, outputPath, 'gif', clientDir);
       if (!postResult.success) {
-        return error(postResult.error || 'Failed to process animation');
+        return { success: false, error: postResult.error };
       }
     }
     
-    return ok({ success: true, output: `/uploads/clients/${clientId}/${outputPath.split('/').pop()}` });
+    return { success: true, output: `/uploads/clients/${clientId}/${outputPath.split('/').pop()}` };
   }
   
   const results = await Promise.all(paths.map(async (path, index) => {
@@ -116,20 +117,25 @@ export async function processImages(inputPath: string | string[], pipelines: Pip
   const errors = results.filter(r => !r.success).map(r => r.error);
   
   if (errors.length > 0) {
-    return ok({ success: false, error: errors.join(', '), outputs });
+    return { success: false, error: errors.join(', '), outputs };
   }
   
   if (isArray) {
-    return ok({ success: true, outputs });
+    return { success: true, outputs };
   }
   
-  return ok({ success: true, output: outputs[0] });
+  return { success: true, output: outputs[0] };
 }
 
-export async function uploadImage(file: File, clientId: string): Promise<Response> {
+export async function uploadImage(file: MulterFile, clientId: string) {
   const clientDir = clientManager.getClientDir(clientId);
-  const filename = `${Date.now()}-${file.name}`;
-  const { writeFile } = await import('fs/promises');
-  await writeFile(join(clientDir, filename), Buffer.from(await file.arrayBuffer()));
-  return ok({ id: filename.replace(/\.[^.]+$/, ''), filename, path: `/uploads/clients/${clientId}/${filename}` });
+  const filename = `${Date.now()}-${file.originalname}`;
+  return { 
+    success: true, 
+    data: { 
+      id: filename.replace(/\.[^.]+$/, ''), 
+      filename, 
+      path: `/uploads/clients/${clientId}/${filename}` 
+    } 
+  };
 }

@@ -7,9 +7,13 @@ let clientId = null;
 
 async function initClient() {
   try {
+    console.log('Initializing client...');
     const res = await fetch('/api/client', { method: 'POST' });
+    console.log('Client response status:', res.status);
     const data = await res.json();
+    console.log('Client data:', data);
     clientId = data.clientId;
+    console.log('Client ID set to:', clientId);
   } catch (err) {
     console.error('Failed to init client:', err);
   }
@@ -572,13 +576,23 @@ async function handleImageUpload(e) {
     const formData = new FormData();
     formData.append('image', file);
     
+    console.log('Uploading file:', file.name, 'to client:', clientId);
+    
     try {
-      const res = await fetch(`/api/upload?clientId=${clientId}`, {
+      const res = await fetch(`/api/upload/${clientId}`, {
         method: 'POST',
         body: formData
       });
       
+      console.log('Upload response status:', res.status);
       const data = await res.json();
+      console.log('Upload response:', data);
+      
+      if (data.error) {
+        console.error('Upload error:', data.error);
+        continue;
+      }
+      
       inputFilenames.push(data.filename);
       inputPaths.push(data.path);
       
@@ -650,7 +664,15 @@ function initImageReorder() {
 async function bake() {
   if (!pipelines.some(p => p.recipe.length > 0)) return;
   if (inputFilenames.length === 0) return;
-  if (!clientId) return;
+  if (!clientId) {
+    console.error('No clientId!');
+    return;
+  }
+  
+  console.log('Starting bake...');
+  console.log('inputFilenames:', inputFilenames);
+  console.log('pipelines:', JSON.stringify(pipelines));
+  console.log('clientId:', clientId);
   
   const btn = document.getElementById('bake-btn');
   if (btn.disabled || btn.classList.contains('loading')) return;
@@ -689,7 +711,9 @@ async function bake() {
       })
     });
     
+    console.log('Bake response status:', res.status);
     const data = await res.json();
+    console.log('Bake response:', data);
     
     if (data.success) {
       outputPaths = [];
@@ -904,7 +928,7 @@ document.getElementById('use-output-as-input-btn').addEventListener('click', asy
     formData.append('image', file);
     
     try {
-      const res = await fetch(`/api/upload?clientId=${clientId}`, {
+      const res = await fetch(`/api/upload/${clientId}`, {
         method: 'POST',
         body: formData
       });
