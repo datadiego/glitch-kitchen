@@ -1,9 +1,14 @@
-FROM oven/bun:latest
+FROM node:20-alpine
 
-RUN apt-get update && apt-get install -y imagemagick && rm -rf /var/lib/apt/lists/*
+RUN apk add --no-cache imagemagick
 
 WORKDIR /app
+
+COPY package*.json ./
+RUN npm install
+
 COPY . .
+
 EXPOSE 3000
 
-CMD ["bun", "run", "server/index.ts"]
+CMD ["npm", "start"]
