@@ -5,6 +5,7 @@ import { readdirSync } from 'fs';
 import { getOperations, handleProcessRequest, handleCreateClient, handleUpload } from '../controllers/imageController.js';
 import { generateScript } from '../utils/magick.js';
 import { clientManager } from '../utils/helpers.js';
+import { generalLimiter, uploadLimiter, processLimiter, clientLimiter } from '../middleware/rateLimit.js';
 
 const router = Router();
 
@@ -29,10 +30,10 @@ const upload = multer({
   limits: { fileSize: 50 * 1024 * 1024 }
 });
 
-router.get('/api/operations', getOperations);
-router.post('/api/client', handleCreateClient);
-router.post('/api/process', handleProcessRequest);
-router.post('/api/upload/:clientId', (req: Request, res: Response, next: NextFunction) => {
+router.get('/api/operations', generalLimiter, getOperations);
+router.post('/api/client', clientLimiter, handleCreateClient);
+router.post('/api/process', processLimiter, handleProcessRequest);
+router.post('/api/upload/:clientId', uploadLimiter, (req: Request, res: Response, next: NextFunction) => {
   upload.single('image')(req, res, (err: any) => {
     if (err) {
       console.error('Multer error:', err.message);
