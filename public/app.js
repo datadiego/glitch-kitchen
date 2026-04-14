@@ -8,13 +8,9 @@ let ws = null;
 
 async function initClient() {
   try {
-    console.log('Initializing client...');
     const res = await fetch('/api/client', { method: 'POST' });
-    console.log('Client response status:', res.status);
     const data = await res.json();
-    console.log('Client data:', data);
     clientId = data.clientId;
-    console.log('Client ID set to:', clientId);
     connectWebSocket();
   } catch (err) {
     console.error('Failed to init client:', err);
@@ -24,15 +20,15 @@ async function initClient() {
 function connectWebSocket() {
   const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
   ws = new WebSocket(`${protocol}//${window.location.host}?clientId=${clientId}`);
-  
+
   ws.onopen = () => {
     console.log('WebSocket connected');
   };
-  
+
   ws.onclose = () => {
     console.log('WebSocket closed');
   };
-  
+
   ws.onerror = (err) => {
     console.error('WebSocket error:', err);
   };
@@ -77,12 +73,12 @@ function removePipeline(id) {
 
 function renderPipelines() {
   const container = document.getElementById('pipelines-container');
-  
+
   if (pipelines.length === 0) {
     container.innerHTML = '<div class="pipeline-hint">Click "Add Pipeline" to create your first pipeline</div>';
     return;
   }
-  
+
   container.innerHTML = pipelines.map(pipeline => `
     <div class="pipeline" data-id="${pipeline.id}" data-dragula-handled="false">
       <div class="pipeline-header">
@@ -97,14 +93,14 @@ function renderPipelines() {
         </div>
       </div>
       <div class="recipe-dropzone" data-pipeline="${pipeline.id}">
-        ${pipeline.recipe.length === 0 
-          ? '<div class="recipe-hint">Drag operations here or double-click</div>'
-          : pipeline.recipe.map((item, index) => renderRecipeStep(item, index, pipeline.id)).join('')
-        }
+        ${pipeline.recipe.length === 0
+      ? '<div class="recipe-hint">Drag operations here or double-click</div>'
+      : pipeline.recipe.map((item, index) => renderRecipeStep(item, index, pipeline.id)).join('')
+    }
       </div>
     </div>
   `).join('');
-  
+
   container.querySelectorAll('.pipeline-name-input').forEach(input => {
     input.addEventListener('change', (e) => {
       const id = parseInt(e.target.dataset.pipeline);
@@ -112,7 +108,7 @@ function renderPipelines() {
       if (pipeline) pipeline.name = e.target.value;
     });
   });
-  
+
   container.querySelectorAll('.pipeline-repeat-input').forEach(input => {
     input.addEventListener('change', (e) => {
       const id = parseInt(e.target.dataset.pipeline);
@@ -121,7 +117,7 @@ function renderPipelines() {
       triggerAutoBake();
     });
   });
-  
+
   container.querySelectorAll('.clear-pipeline').forEach(btn => {
     btn.addEventListener('click', (e) => {
       const id = parseInt(e.target.dataset.pipeline);
@@ -134,14 +130,14 @@ function renderPipelines() {
       }
     });
   });
-  
+
   container.querySelectorAll('.remove-pipeline').forEach(btn => {
     btn.addEventListener('click', (e) => {
       const id = parseInt(e.target.dataset.pipeline);
       removePipeline(id);
     });
   });
-  
+
   setupDragula();
   setupRecipeStepEvents();
 }
@@ -149,10 +145,10 @@ function renderPipelines() {
 function renderRecipeStep(item, index, pipelineId) {
   const op = operations.find(o => o.id === item.id);
   if (!op) return '';
-  
+
   const colorsArg = op.args.find(arg => arg.type === 'colors');
   const otherArgs = op.args.filter(arg => arg.type !== 'colors');
-  
+
   return `
     <div class="recipe-step" data-index="${index}" data-pipeline="${pipelineId}">
       <span class="recipe-step-num">${index + 1}</span>
@@ -161,25 +157,25 @@ function renderRecipeStep(item, index, pipelineId) {
         ${otherArgs.map(arg => `
           <div class="arg-inline">
             <label>${arg.label}:</label>
-            ${arg.type === 'select' 
-              ? `<select name="${arg.name}" data-index="${index}" data-pipeline="${pipelineId}">
+            ${arg.type === 'select'
+      ? `<select name="${arg.name}" data-index="${index}" data-pipeline="${pipelineId}">
                   ${arg.options.map(opt => `<option value="${opt}" ${item.args[arg.name] === opt ? 'selected' : ''}>${opt}</option>`).join('')}
                  </select>`
-              : arg.type === 'range'
-                ? `<input type="range" name="${arg.name}" data-index="${index}" data-pipeline="${pipelineId}" 
+      : arg.type === 'range'
+        ? `<input type="range" name="${arg.name}" data-index="${index}" data-pipeline="${pipelineId}" 
                     value="${item.args[arg.name]}" min="${arg.min}" max="${arg.max}" step="1" />
                     <span class="range-value">${item.args[arg.name]}</span>`
-                : `<input type="text" name="${arg.name}" data-index="${index}" data-pipeline="${pipelineId}" 
+        : `<input type="text" name="${arg.name}" data-index="${index}" data-pipeline="${pipelineId}" 
                     value="${item.args[arg.name]}" 
                     placeholder="${arg.min !== undefined ? `${arg.min}:${arg.max}` : 'min:max'}"
                     autocomplete="off" />`
-            }
+    }
           </div>
         `).join('')}
         ${colorsArg ? (() => {
-          const colors = Array.isArray(item.args[colorsArg.name]) ? item.args[colorsArg.name] : [item.args[colorsArg.name] || '#FFFFFF'];
-          const maxColors = colorsArg.maxColors || 16;
-          return `
+      const colors = Array.isArray(item.args[colorsArg.name]) ? item.args[colorsArg.name] : [item.args[colorsArg.name] || '#FFFFFF'];
+      const maxColors = colorsArg.maxColors || 16;
+      return `
             <div class="arg-colors" data-index="${index}" data-pipeline="${pipelineId}" data-arg="${colorsArg.name}" data-max="${maxColors}">
               <label>${colorsArg.label}:</label>
               <div class="colors-row">
@@ -193,7 +189,7 @@ function renderRecipeStep(item, index, pipelineId) {
               </div>
             </div>
           `;
-        })() : ''}
+    })() : ''}
       </div>
       <button class="recipe-step-remove" data-index="${index}" data-pipeline="${pipelineId}">×</button>
     </div>
@@ -205,11 +201,11 @@ let isReorderingPipelines = false;
 function setupDragula() {
   dragulaInstances.forEach(d => d.destroy());
   dragulaInstances = [];
-  
+
   const operationsList = document.getElementById('operations-list');
   const pipelinesContainer = document.getElementById('pipelines-container');
   const dropzones = document.querySelectorAll('.recipe-dropzone');
-  
+
   const pipelineDrake = dragula([pipelinesContainer], {
     moves: (el, source, handle) => {
       return el.classList.contains('pipeline') && handle.closest('.pipeline-header') !== null;
@@ -220,18 +216,18 @@ function setupDragula() {
     revertOnSpill: true,
     ignoreInputText: true
   });
-  
+
   pipelineDrake.on('drop', (el, target, source, sibling) => {
     if (!target || target !== pipelinesContainer) return;
     if (!el.classList.contains('pipeline')) return;
-    
+
     if (isReorderingPipelines) return;
     isReorderingPipelines = true;
-    
+
     setTimeout(() => {
       const pipelineElements = Array.from(pipelinesContainer.children).filter(c => c.classList.contains('pipeline'));
       const currentIds = pipelineElements.map(p => parseInt(p.dataset.id));
-      
+
       if (JSON.stringify(currentIds) !== JSON.stringify(pipelines.map(p => p.id))) {
         const newOrder = currentIds
           .map(id => pipelines.find(p => p.id === id))
@@ -243,7 +239,7 @@ function setupDragula() {
       isReorderingPipelines = false;
     }, 0);
   });
-  
+
   const drake = dragula([operationsList, ...dropzones], {
     copy: (el, source) => source === operationsList,
     moves: (el, source, handle) => {
@@ -258,10 +254,10 @@ function setupDragula() {
     revertOnSpill: true,
     ignoreInputText: true
   });
-  
+
   drake.on('drop', (el, target, source, sibling) => {
     if (!target) return;
-    
+
     if (target === operationsList) {
       if (source !== operationsList) {
         const pipelineId = parseInt(source.dataset.pipeline);
@@ -278,39 +274,39 @@ function setupDragula() {
       renderOperations();
       return;
     }
-    
+
     const pipelineId = parseInt(target.dataset.pipeline);
     const pipeline = pipelines.find(p => p.id === pipelineId);
     if (!pipeline) return;
-    
+
     const hint = target.querySelector('.recipe-hint');
     if (hint) hint.remove();
-    
+
     const opId = el.dataset.id;
-    
+
     if (source === operationsList) {
       if (!opId) return;
-      
+
       const op = operations.find(o => o.id === opId);
       if (!op) return;
-      
+
       const args = {};
       op.args.forEach(arg => {
         args[arg.name] = arg.default;
       });
-      
+
       let toIndex = pipeline.recipe.length;
-      
+
       if (sibling && sibling.classList && sibling.classList.contains('recipe-step')) {
         const steps = Array.from(target.children).filter(c => c.classList.contains('recipe-step'));
         toIndex = steps.indexOf(sibling);
       }
-      
+
       pipeline.recipe.splice(toIndex, 0, { id: op.id, args });
       el.remove();
     } else {
       let movedItem = null;
-      
+
       if (source.dataset.pipeline !== target.dataset.pipeline) {
         const sourcePipeline = pipelines.find(p => p.id === parseInt(source.dataset.pipeline));
         if (sourcePipeline) {
@@ -323,23 +319,23 @@ function setupDragula() {
         movedItem = pipeline.recipe[oldIndex];
         pipeline.recipe.splice(oldIndex, 1);
       }
-      
+
       if (movedItem) {
         let toIndex = pipeline.recipe.length;
-        
+
         if (sibling && sibling.classList.contains('recipe-step')) {
           toIndex = parseInt(sibling.dataset.index);
         }
-        
+
         pipeline.recipe.splice(toIndex, 0, movedItem);
       }
     }
-    
+
     renderPipelines();
     updateBakeButton();
     triggerAutoBake();
   });
-  
+
   dragulaInstances.push(pipelineDrake);
   dragulaInstances.push(drake);
 }
@@ -358,28 +354,28 @@ function setupRecipeStepEvents() {
       }
     });
   });
-  
+
   document.querySelectorAll('.recipe-step-args input, .recipe-step-args select').forEach(input => {
     const handleChange = () => {
       const index = parseInt(input.dataset.index);
       const pipelineId = parseInt(input.dataset.pipeline);
       const pipeline = pipelines.find(p => p.id === pipelineId);
       if (!pipeline) return;
-      
+
       const argName = input.name;
       const value = input.type === 'select' ? input.value : input.value;
       pipeline.recipe[index].args[argName] = value;
-      
+
       clearTimeout(window.autoBakeTimer);
       window.autoBakeTimer = setTimeout(() => {
         triggerAutoBake();
       }, 300);
     };
-    
+
     input.addEventListener('change', handleChange);
     input.addEventListener('input', handleChange);
   });
-  
+
   document.querySelectorAll('input[type="range"]').forEach(input => {
     input.addEventListener('input', () => {
       const valueSpan = input.parentElement.querySelector('.range-value');
@@ -388,22 +384,22 @@ function setupRecipeStepEvents() {
       }
     });
   });
-  
+
   document.querySelectorAll('.arg-colors').forEach(container => {
     const list = container.querySelector('.colors-list');
     if (!list) return;
-    
+
     const index = parseInt(container.dataset.index);
     const pipelineId = parseInt(container.dataset.pipeline);
     const argName = container.dataset.arg;
     const maxColors = parseInt(container.dataset.max);
-    
+
     container.addEventListener('click', (e) => {
       const pipeline = pipelines.find(p => p.id === pipelineId);
       if (!pipeline) return;
-      
+
       const colors = [...pipeline.recipe[index].args[argName]];
-      
+
       if (e.target.classList.contains('add-color-btn')) {
         if (colors.length < maxColors) {
           colors.push('#808080');
@@ -412,7 +408,7 @@ function setupRecipeStepEvents() {
           triggerAutoBake();
         }
       }
-      
+
       if (e.target.classList.contains('remove-color')) {
         const item = e.target.closest('.color-item');
         const colorIndex = parseInt(item.dataset.colorIndex);
@@ -424,18 +420,18 @@ function setupRecipeStepEvents() {
         }
       }
     });
-    
+
     list.addEventListener('input', (e) => {
       if (e.target.type === 'color') {
         const pipeline = pipelines.find(p => p.id === pipelineId);
         if (!pipeline) return;
-        
+
         const item = e.target.closest('.color-item');
         const colorIndex = parseInt(item.dataset.colorIndex);
         const colors = [...pipeline.recipe[index].args[argName]];
         colors[colorIndex] = e.target.value;
         pipeline.recipe[index].args[argName] = colors;
-        
+
         clearTimeout(window.autoBakeTimer);
         window.autoBakeTimer = setTimeout(() => {
           triggerAutoBake();
@@ -443,7 +439,7 @@ function setupRecipeStepEvents() {
       }
     }, true);
   });
-  
+
   setupColorsDragula();
 }
 
@@ -452,27 +448,27 @@ let colorDragulaInstances = [];
 function setupColorsDragula() {
   colorDragulaInstances.forEach(d => d.destroy());
   colorDragulaInstances = [];
-  
+
   document.querySelectorAll('.colors-list').forEach(list => {
     const container = list.closest('.arg-colors');
     const index = parseInt(container.dataset.index);
     const pipelineId = parseInt(container.dataset.pipeline);
     const argName = container.dataset.arg;
     const maxColors = parseInt(container.dataset.max);
-    
+
     const drake = dragula([list], {
       moves: (el, source, handle) => {
         return el.classList.contains('color-item');
       }
     });
-    
+
     drake.on('drop', (el, target) => {
       const items = Array.from(target.querySelectorAll('.color-item'));
       const newColors = items.map(item => {
         const input = item.querySelector('input[type="color"]');
         return input ? input.value : '#FFFFFF';
       });
-      
+
       const pipeline = pipelines.find(p => p.id === pipelineId);
       if (pipeline) {
         pipeline.recipe[index].args[argName] = newColors;
@@ -480,7 +476,7 @@ function setupColorsDragula() {
         triggerAutoBake();
       }
     });
-    
+
     colorDragulaInstances.push(drake);
   });
 }
@@ -488,11 +484,11 @@ function setupColorsDragula() {
 function renderColorItems(list, container, index, pipelineId, argName, maxColors) {
   const pipeline = pipelines.find(p => p.id === pipelineId);
   if (!pipeline) return;
-  
-  const colors = Array.isArray(pipeline.recipe[index].args[argName]) 
-    ? pipeline.recipe[index].args[argName] 
+
+  const colors = Array.isArray(pipeline.recipe[index].args[argName])
+    ? pipeline.recipe[index].args[argName]
     : [pipeline.recipe[index].args[argName] || '#FFFFFF'];
-  
+
   list.innerHTML = colors.map((color, i) => `
     <div class="color-item" data-color-index="${i}" draggable="true">
       <input type="color" value="${color}" />
@@ -504,9 +500,9 @@ function renderColorItems(list, container, index, pipelineId, argName, maxColors
 function renderOperations() {
   const container = document.getElementById('operations-list');
   container.innerHTML = '';
-  
+
   const searchTerm = document.getElementById('search').value.toLowerCase();
-  
+
   operations
     .filter(op => op.name.toLowerCase().includes(searchTerm))
     .sort((a, b) => a.name.localeCompare(b.name))
@@ -518,7 +514,7 @@ function renderOperations() {
         <h4>${op.name}</h4>
         <p>${op.description}</p>
       `;
-      
+
       item.addEventListener('dblclick', () => {
         if (pipelines.length === 0) {
           addPipeline();
@@ -533,7 +529,7 @@ function renderOperations() {
         updateBakeButton();
         triggerAutoBake();
       });
-      
+
       container.appendChild(item);
     });
 }
@@ -541,17 +537,17 @@ function renderOperations() {
 function addToRecipe(id) {
   const op = operations.find(o => o.id === id);
   if (!op) return;
-  
+
   if (pipelines.length === 0) {
     addPipeline();
   }
-  
+
   const pipeline = pipelines[pipelines.length - 1];
   const args = {};
   op.args.forEach(arg => {
     args[arg.name] = arg.default;
   });
-  
+
   pipeline.recipe.push({ id: op.id, args });
   renderPipelines();
   updateBakeButton();
@@ -581,7 +577,7 @@ function triggerAutoBake() {
 function playNotificationSound() {
   if (document.getElementById('sound-enabled')?.checked) {
     const audio = new Audio('/notification.mp3');
-    audio.play().catch(err => console.log('Audio play failed:', err));
+    audio.play().catch(err => console.error('Audio play failed:', err));
   }
 }
 
@@ -590,60 +586,56 @@ let currentInput = null;
 async function handleImageUpload(e) {
   const files = Array.from(e.target.files);
   if (files.length === 0) return;
-  
+
   inputFilenames = [];
   inputPaths = [];
-  
+
   const previewContainer = document.getElementById('input-preview');
   previewContainer.innerHTML = '<div class="multi-preview"></div>';
   const multiPreview = previewContainer.querySelector('.multi-preview');
-  
+
   for (const file of files) {
     const formData = new FormData();
     formData.append('image', file);
-    
-    console.log('Uploading file:', file.name, 'to client:', clientId);
-    
+
     try {
       const res = await fetch(`/api/upload/${clientId}`, {
         method: 'POST',
         body: formData
       });
-      
-      console.log('Upload response status:', res.status);
+
       const data = await res.json();
-      console.log('Upload response:', data);
-      
+
       if (data.error) {
         console.error('Upload error:', data.error);
         continue;
       }
-      
+
       inputFilenames.push(data.filename);
       inputPaths.push(data.path);
-      
+
       const imgContainer = document.createElement('div');
       imgContainer.style.position = 'relative';
       imgContainer.classList.add('img-drag');
-      
+
       const handle = document.createElement('span');
       handle.className = 'img-handle';
       handle.textContent = '⋮⋮';
       imgContainer.appendChild(handle);
-      
+
       const img = document.createElement('img');
       img.src = data.path;
       img.alt = file.name;
       img.dataset.path = data.path;
       img.dataset.filename = data.filename;
       imgContainer.appendChild(img);
-      
+
       multiPreview.appendChild(imgContainer);
     } catch (err) {
       console.error('Upload failed:', err);
     }
   }
-  
+
   initImageReorder();
   updateBakeButton();
   triggerAutoBake();
@@ -652,24 +644,24 @@ async function handleImageUpload(e) {
 function initImageReorder() {
   const multiPreview = document.querySelector('.multi-preview');
   if (!multiPreview) return;
-  
+
   const existingDrake = dragulaInstances.find(d => d._el === multiPreview);
   if (existingDrake) {
     existingDrake.destroy();
     dragulaInstances = dragulaInstances.filter(d => d._el !== multiPreview);
   }
-  
+
   const imgDrake = dragula([multiPreview], {
     accepts: () => true,
     revertOnSpill: true,
     direction: 'vertical'
   });
-  
+
   imgDrake.on('drop', (el, target, source, sibling) => {
     const containers = Array.from(multiPreview.children);
     const newFilenames = [];
     const newPaths = [];
-    
+
     containers.forEach(container => {
       const img = container.querySelector('img');
       if (img && img.dataset.filename && img.dataset.path) {
@@ -677,13 +669,13 @@ function initImageReorder() {
         newPaths.push(img.dataset.path);
       }
     });
-    
+
     inputFilenames = newFilenames;
     inputPaths = newPaths;
-    
+
     triggerAutoBake();
   });
-  
+
   dragulaInstances.push(imgDrake);
 }
 
@@ -694,25 +686,20 @@ async function bake() {
     console.error('No clientId!');
     return;
   }
-  
-  console.log('Starting bake...');
-  console.log('inputFilenames:', inputFilenames);
-  console.log('pipelines:', JSON.stringify(pipelines));
-  console.log('clientId:', clientId);
-  
+
   const btn = document.getElementById('bake-btn');
   if (btn.disabled || btn.classList.contains('loading')) return;
-  
+
   document.title = 'baking...';
-  
+
   btn.disabled = true;
   btn.classList.add('loading');
-  
+
   const downloadBtn = document.getElementById('download-output-btn');
   const useOutputBtn = document.getElementById('use-output-as-input-btn');
   downloadBtn.disabled = true;
   useOutputBtn.disabled = true;
-  
+
   let randomStr = Math.random().toString(36).slice(2, 10);
   btn.textContent = randomStr;
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*▓▒░⠁⠂⠃⠄⠅⠆⠇⠈⠉⠊⠋⠌⠍⠎⠏⠐⠑⠒⠓⠔⠕⠖⠗⠙⠚⠛⠜⠝⠞⠟⠠⠡⠢⠣⠤⠥⠦⠧⠨⠩⠪⠫⠬⠭⠮⠯⠰⠱⠲⠳⠴⠵⠶⠷⠸⠹⠺⠻⠼⠽⠾⠿┌┐└┘├┤┬┴┼═║╔╗╚╝╠╣╦╩╬╱╲╳';
@@ -722,10 +709,10 @@ async function bake() {
     randomStr = randomStr.slice(0, idx) + newChar + randomStr.slice(idx + 1);
     btn.textContent = randomStr;
   }, 10);
-  
+
   const outputEl = document.getElementById('output-preview');
   outputEl.innerHTML = '';
-  
+
   try {
     const res = await fetch('/api/process', {
       method: 'POST',
@@ -736,11 +723,8 @@ async function bake() {
         clientId: clientId
       })
     });
-    
-    console.log('Bake response status:', res.status);
+
     const data = await res.json();
-    console.log('Bake response:', data);
-    
     if (data.success) {
       outputPaths = [];
       if (data.outputs) {
@@ -862,7 +846,7 @@ document.getElementById('load-btn').addEventListener('click', () => {
 document.getElementById('load-input').addEventListener('change', (e) => {
   const file = e.target.files[0];
   if (!file) return;
-  
+
   const reader = new FileReader();
   reader.onload = (event) => {
     try {
@@ -909,7 +893,7 @@ async function loadPipelineList() {
 document.getElementById('pipeline-select').addEventListener('change', async (e) => {
   const file = e.target.value;
   if (!file) return;
-  
+
   try {
     const res = await fetch(`/pipelines/${file}`);
     const state = await res.json();
@@ -936,55 +920,55 @@ document.getElementById('download-output-btn').addEventListener('click', () => {
 
 document.getElementById('use-output-as-input-btn').addEventListener('click', async () => {
   if (outputPaths.length === 0) return;
-  
+
   inputFilenames = [];
   inputPaths = [];
-  
+
   const previewContainer = document.getElementById('input-preview');
   previewContainer.innerHTML = '<div class="multi-preview"></div>';
   const multiPreview = previewContainer.querySelector('.multi-preview');
-  
+
   for (const path of outputPaths) {
     const response = await fetch(path);
     const blob = await response.blob();
     const filename = path.split('/').pop();
     const file = new File([blob], filename, { type: blob.type });
-    
+
     const formData = new FormData();
     formData.append('image', file);
-    
+
     try {
       const res = await fetch(`/api/upload/${clientId}`, {
         method: 'POST',
         body: formData
       });
-      
+
       const data = await res.json();
       inputFilenames.push(data.filename);
       inputPaths.push(data.path);
-      
+
       const imgContainer = document.createElement('div');
       imgContainer.style.position = 'relative';
       imgContainer.classList.add('img-drag');
-      
+
       const handle = document.createElement('span');
       handle.className = 'img-handle';
       handle.textContent = '⋮⋮';
       imgContainer.appendChild(handle);
-      
+
       const img = document.createElement('img');
       img.src = data.path;
       img.alt = filename;
       img.dataset.path = data.path;
       img.dataset.filename = data.filename;
       imgContainer.appendChild(img);
-      
+
       multiPreview.appendChild(imgContainer);
     } catch (err) {
       console.error('Upload failed:', err);
     }
   }
-  
+
   initImageReorder();
   updateBakeButton();
   triggerAutoBake();
