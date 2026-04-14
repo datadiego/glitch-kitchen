@@ -11,7 +11,6 @@ const router = Router();
 const storage = multer.diskStorage({
   destination: (req, _file, cb) => {
     const clientId = (req.params as any).clientId;
-    console.log('Upload destination for client:', clientId);
     if (!clientId) {
       cb(new Error('clientId required'), '');
       return;
@@ -21,7 +20,6 @@ const storage = multer.diskStorage({
   },
   filename: (_req, file, cb) => {
     const filename = `${Date.now()}-${file.originalname}`;
-    console.log('Saving file as:', filename);
     cb(null, filename);
   }
 });
@@ -35,7 +33,6 @@ router.get('/api/operations', getOperations);
 router.post('/api/client', handleCreateClient);
 router.post('/api/process', handleProcessRequest);
 router.post('/api/upload/:clientId', (req: Request, res: Response, next: NextFunction) => {
-  console.log('Upload request received for client:', req.params.clientId);
   upload.single('image')(req, res, (err: any) => {
     if (err) {
       console.error('Multer error:', err.message);

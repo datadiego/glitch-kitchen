@@ -1,5 +1,6 @@
 import express from 'express';
 import cors from 'cors';
+import morgan from 'morgan';
 import { createServer } from 'http';
 import { WebSocketServer, WebSocket } from 'ws';
 import { join } from 'path';
@@ -9,9 +10,6 @@ import { clientManager } from './utils/helpers.js';
 const UPLOAD_DIR = join(process.cwd(), 'uploads');
 const PUBLIC_DIR = join(process.cwd(), 'public');
 const CLIENTS_DIR = join(UPLOAD_DIR, 'clients');
-
-console.log('UPLOAD_DIR:', UPLOAD_DIR);
-console.log('CLIENTS_DIR:', CLIENTS_DIR);
 
 const app = express();
 const httpServer = createServer(app);
@@ -24,14 +22,12 @@ wss.on('connection', (ws, req) => {
   if (clientId) {
     clientSockets.set(clientId, ws);
     clientManager.touch(clientId);
-    console.log(`WebSocket connected for client: ${clientId}`);
   }
 
   ws.on('close', () => {
     if (clientId) {
       clientSockets.delete(clientId);
       clientManager.cleanupClient(clientId);
-      console.log(`Client ${clientId} disconnected, directory cleaned up`);
     }
   });
 });
@@ -39,6 +35,7 @@ wss.on('connection', (ws, req) => {
 const PORT = process.env.PORT || 3000;
 
 app.use(cors());
+app.use(morgan(':date[iso] :remote-addr :method :url :status :res[content-length] :user-agent :response-time ms'));
 app.use(express.json());
 app.use(express.static(PUBLIC_DIR));
 app.use('/uploads', express.static(UPLOAD_DIR));

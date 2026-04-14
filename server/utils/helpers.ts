@@ -59,7 +59,6 @@ class ClientManager {
       const clientDir = this.getClientDir(clientId);
       if (existsSync(clientDir)) {
         rmSync(clientDir, { recursive: true, force: true });
-        console.log(`Cleaned up client directory: ${clientId}`);
       }
     } catch (err) {
       console.error(`Error cleaning up client ${clientId}:`, err);
