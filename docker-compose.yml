@@ -1,9 +1,11 @@
 services:
   app:
     build: .
+    container_name: glitch-kitchen
     ports:
       - "3000:3000"
     volumes:
       - ./uploads:/app/uploads
       - ./public:/app/public
-    command: npm run start
+    restart: unless-stopped
+    command: node dist/index.js

@@ -1,3 +1,15 @@
+FROM node:20-alpine AS builder
+
+RUN apk add --no-cache imagemagick
+
+WORKDIR /app
+
+COPY package*.json ./
+RUN npm ci
+
+COPY . .
+RUN npm run build
+
 FROM node:20-alpine
 
 RUN apk add --no-cache imagemagick
@@ -5,10 +17,11 @@ RUN apk add --no-cache imagemagick
 WORKDIR /app
 
 COPY package*.json ./
-RUN npm install
+RUN npm ci --only=production
 
-COPY . .
+COPY --from=builder /app/dist ./dist
+COPY public ./public
 
 EXPOSE 3000
 
-CMD ["npm", "start"]
+CMD ["node", "dist/index.js"]
