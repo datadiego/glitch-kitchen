@@ -1,6 +1,7 @@
 import { join } from 'path';
 import { existsSync } from 'fs';
-import { UPLOAD_DIR, clientManager, runMagick, ok, error } from '../utils/helpers';
+import { unlink } from 'fs/promises';
+import { clientManager, cleanClientDir, runMagick, ok, error } from '../utils/helpers';
 import { buildMagickCommand } from '../utils/magick';
 import type { Pipeline } from '../types/operations';
 
@@ -21,28 +22,41 @@ export async function processPipeline(
   const hasFormat = recipe.find(op => op.id === 'format')?.args.type as string;
   const ext = hasFormat || (hasQuality ? 'jpg' : finalExt);
   let currentInput = input;
+  const tempFiles: string[] = [];
   
-  for (let i = 0; i < repeat; i++) {
-    const isLast = i === repeat - 1;
-    const tempOutput = isLast ? outputPath : join(clientDir, `temp-${Date.now()}-${i}.${ext}`);
-    
-    const magickArgs = buildMagickCommand(recipe);
-    const result = await runMagick([currentInput, ...magickArgs, tempOutput]);
-    
-    if (!result.success) {
-      return { success: false, error: result.error, output: '' };
+  try {
+    for (let i = 0; i < repeat; i++) {
+      const isLast = i === repeat - 1;
+      const tempOutput = isLast ? outputPath : join(clientDir, `temp-${Date.now()}-${i}.${ext}`);
+      if (!isLast) tempFiles.push(tempOutput);
+      
+      const magickArgs = buildMagickCommand(recipe);
+      const result = await runMagick([currentInput, ...magickArgs, tempOutput]);
+      
+      if (!result.success) {
+        return { success: false, error: result.error, output: '' };
+      }
+      
+      if (!isLast) currentInput = tempOutput;
     }
     
-    if (!isLast) currentInput = tempOutput;
+    return { success: true, output: outputPath };
+  } finally {
+    await Promise.all(tempFiles.map(file => unlink(file).catch(() => {})));
   }
-  
-  return { success: true, output: outputPath };
 }
 
 export async function processImages(inputPath: string | string[], pipelines: Pipeline[], clientId: string): Promise<Response> {
   const isArray = Array.isArray(inputPath);
   const paths = isArray ? inputPath : [inputPath];
   const clientDir = clientManager.getClientDir(clientId);
+  
+  const missing = paths.filter(p => !existsSync(join(clientDir, p)));
+  if (missing.length > 0) {
+    return ok({ success: false, error: `File not found: ${missing.join(', ')}`, outputs: [] });
+  }
+  
+  await cleanClientDir(clientDir, paths);
   
   const hasAnimate = pipelines.some(p => p.recipe.some(op => op.id === 'animate'));
   
@@ -128,7 +142,8 @@ export async function processImages(inputPath: string | string[], pipelines: Pip
 
 export async function uploadImage(file: File, clientId: string): Promise<Response> {
   const clientDir = clientManager.getClientDir(clientId);
-  const filename = `${Date.now()}-${file.name}`;
+  const baseName = file.name.split('/').pop()?.split('\\').pop() || 'image';
+  const filename = `${Date.now()}-${baseName}`;
   const { writeFile } = await import('fs/promises');
   await writeFile(join(clientDir, filename), Buffer.from(await file.arrayBuffer()));
   return ok({ id: filename.replace(/\.[^.]+$/, ''), filename, path: `/uploads/clients/${clientId}/${filename}` });
