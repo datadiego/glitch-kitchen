@@ -1,4 +1,4 @@
-import { getOperations, handleProcessRequest, handleUpload, handleCreateClient } from '../controllers/imageController';
+import { getOperations, handleProcessRequest, handleUpload, handleCreateClient, handleClientPing, handleClientClose } from '../controllers/imageController';
 import { generateScript } from '../utils/magick';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -54,6 +54,8 @@ async function handleDownloadScript(req: Request): Promise<Response> {
 export const routes: Route[] = [
   { path: '/api/operations', method: 'GET', handler: async () => getOperations() },
   { path: '/api/client', method: 'POST', handler: handleCreateClient },
+  { path: '/api/client/ping', method: 'POST', handler: handleClientPing },
+  { path: '/api/client/close', method: 'POST', handler: handleClientClose },
   { path: '/api/process', method: 'POST', handler: handleProcessRequest },
   { path: '/api/upload', method: 'POST', handler: handleUpload },
   { path: '/api/pipelines', method: 'GET', handler: async () => getPipelines() },

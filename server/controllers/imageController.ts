@@ -12,6 +12,22 @@ export async function handleCreateClient(): Promise<Response> {
   return ok({ clientId });
 }
 
+export async function handleClientPing(req: Request): Promise<Response> {
+  const body = await req.json().catch(() => null) as { clientId?: string } | null;
+  const clientId = body?.clientId;
+  if (!clientId || !isValidClientId(clientId)) return error('clientId required');
+  await clientManager.touch(clientId);
+  return ok({ success: true });
+}
+
+export async function handleClientClose(req: Request): Promise<Response> {
+  const body = await req.json().catch(() => null) as { clientId?: string } | null;
+  const clientId = body?.clientId;
+  if (!clientId || !isValidClientId(clientId)) return error('clientId required');
+  await clientManager.dispose(clientId);
+  return ok({ success: true });
+}
+
 export async function handleProcessRequest(req: Request): Promise<Response> {
   const body = await req.json() as { inputPath?: string | string[]; pipelines?: Pipeline[]; clientId?: string };
   const inputPath = body.inputPath;

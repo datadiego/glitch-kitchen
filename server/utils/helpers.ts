@@ -16,7 +16,7 @@ export function isValidClientId(clientId: unknown): clientId is string {
 
 class ClientManager {
   private cleanupInterval: ReturnType<typeof setInterval> | null = null;
-  private readonly CLIENT_TTL = 30 * 60 * 1000;
+  private readonly CLIENT_TTL = 10 * 60 * 1000;
 
   async init(): Promise<void> {
     await mkdir(CLIENTS_DIR, { recursive: true });
@@ -42,6 +42,10 @@ class ClientManager {
     await mkdir(clientDir, { recursive: true });
     const now = new Date();
     await utimes(clientDir, now, now).catch(() => {});
+  }
+
+  async dispose(clientId: string): Promise<void> {
+    await rm(this.getClientDir(clientId), { recursive: true, force: true }).catch(() => {});
   }
 
   async removeExpiredClients(): Promise<void> {

@@ -4,6 +4,7 @@ let inputPaths = [];
 let outputPaths = [];
 let dragulaInstances = [];
 let clientId = null;
+let clientReportingClosed = false;
 
 async function initClient() {
   try {
@@ -14,6 +15,39 @@ async function initClient() {
     console.error('Failed to init client:', err);
   }
 }
+
+async function pingClient() {
+  if (!clientId) return;
+  try {
+    await fetch('/api/client/ping', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ clientId })
+    });
+  } catch (err) { /* keepalive errors are not critical */ }
+}
+
+setInterval(pingClient, 60 * 1000);
+
+window.addEventListener('pagehide', () => {
+  if (!clientId || clientReportingClosed) return;
+  clientReportingClosed = true;
+  const payload = JSON.stringify({ clientId });
+  if (navigator.sendBeacon) {
+    navigator.sendBeacon('/api/client/close', new Blob([payload], { type: 'application/json' }));
+  } else {
+    fetch('/api/client/close', {
+      method: 'POST',
+      keepalive: true,
+      headers: { 'Content-Type': 'application/json' },
+      body: payload
+    }).catch(() => {});
+  }
+});
+
+window.addEventListener('pageshow', (e) => {
+  if (e.persisted) location.reload();
+});
 
 async function loadOperations() {
   try {
