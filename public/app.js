@@ -6,6 +6,44 @@ let dragulaInstances = [];
 let clientId = null;
 let clientReportingClosed = false;
 
+let measureEl = null;
+
+function autosizeInput(input) {
+  if (!input || input.tagName !== 'INPUT' || ['range', 'color', 'checkbox', 'file', 'radio'].includes(input.type)) return;
+
+  if (!measureEl) {
+    measureEl = document.createElement('span');
+    measureEl.setAttribute('aria-hidden', 'true');
+    measureEl.style.cssText = 'position:absolute;left:-99999px;top:0;visibility:hidden;white-space:pre;';
+    document.body.appendChild(measureEl);
+  }
+
+  const style = getComputedStyle(input);
+  measureEl.style.fontFamily = style.fontFamily;
+  measureEl.style.fontSize = style.fontSize;
+  measureEl.style.fontWeight = style.fontWeight;
+  measureEl.style.fontStyle = style.fontStyle;
+  measureEl.style.letterSpacing = style.letterSpacing;
+
+  const fontSize = parseFloat(style.fontSize) || 14;
+  const text = input.value || input.placeholder || '';
+
+  measureEl.textContent = text;
+  let textWidth = measureEl.offsetWidth || text.length * fontSize * 0.6;
+
+  measureEl.textContent = '0000';
+  textWidth = Math.max(textWidth, measureEl.offsetWidth || 4 * fontSize * 0.6);
+
+  let chrome = (parseFloat(style.paddingLeft) || 0)
+    + (parseFloat(style.paddingRight) || 0)
+    + (parseFloat(style.borderLeftWidth) || 0)
+    + (parseFloat(style.borderRightWidth) || 0)
+    + 4;
+  if (input.type === 'number') chrome += 20;
+
+  input.style.width = Math.ceil(textWidth + chrome) + 'px';
+}
+
 async function initClient() {
   try {
     const res = await fetch('/api/client', { method: 'POST' });
@@ -118,10 +156,13 @@ function renderPipelines() {
   });
   
   container.querySelectorAll('.pipeline-repeat-input').forEach(input => {
+    autosizeInput(input);
+    input.addEventListener('input', () => autosizeInput(input));
     input.addEventListener('change', (e) => {
       const id = parseInt(e.target.dataset.pipeline);
       const pipeline = pipelines.find(p => p.id === id);
       if (pipeline) pipeline.repeat = parseInt(e.target.value) || 1;
+      autosizeInput(e.target);
       triggerAutoBake();
     });
   });
@@ -380,8 +421,13 @@ function setupRecipeStepEvents() {
       }, 300);
     };
     
+    autosizeInput(input);
+
     input.addEventListener('change', handleChange);
-    input.addEventListener('input', handleChange);
+    input.addEventListener('input', () => {
+      handleChange();
+      autosizeInput(input);
+    });
   });
   
   document.querySelectorAll('input[type="range"]').forEach(input => {
