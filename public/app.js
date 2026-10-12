@@ -957,9 +957,10 @@ document.getElementById('pipeline-select').addEventListener('change', async (e) 
 
 document.getElementById('download-output-btn').addEventListener('click', () => {
   outputPaths.forEach((path, index) => {
+    const ext = path.split('.').pop() || 'png';
     const a = document.createElement('a');
     a.href = path;
-    a.download = `output-${index + 1}.png`;
+    a.download = `output-${index + 1}.${ext}`;
     a.click();
   });
 });

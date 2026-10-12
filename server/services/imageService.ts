@@ -1,9 +1,13 @@
 import { join } from 'path';
 import { existsSync } from 'fs';
-import { unlink } from 'fs/promises';
-import { clientManager, cleanClientDir, runMagick, ok, error } from '../utils/helpers';
+import { mkdir, readdir, rm, unlink } from 'fs/promises';
+import { clientManager, cleanClientDir, runMagick, runMagickOutput, ok, error } from '../utils/helpers';
 import { buildMagickCommand } from '../utils/magick';
 import type { Pipeline } from '../types/operations';
+
+function isGifPath(p: string): boolean {
+  return typeof p === 'string' && p.toLowerCase().endsWith('.gif');
+}
 
 export async function processPipeline(
   pipeline: Pipeline,
@@ -27,7 +31,7 @@ export async function processPipeline(
   try {
     for (let i = 0; i < repeat; i++) {
       const isLast = i === repeat - 1;
-      const tempOutput = isLast ? outputPath : join(clientDir, `temp-${Date.now()}-${i}.${ext}`);
+      const tempOutput = isLast ? outputPath : join(clientDir, `temp-${Date.now()}-${Math.random().toString(36).slice(2, 8)}-${i}.${ext}`);
       if (!isLast) tempFiles.push(tempOutput);
       
       const magickArgs = buildMagickCommand(recipe);
@@ -43,6 +47,96 @@ export async function processPipeline(
     return { success: true, output: outputPath };
   } finally {
     await Promise.all(tempFiles.map(file => unlink(file).catch(() => {})));
+  }
+}
+
+async function applyPipelines(
+  inputFile: string,
+  pipelines: Pipeline[],
+  outputPath: string,
+  finalExt: string,
+  clientDir: string
+): Promise<{ success: boolean; error?: string; output: string }> {
+  let currentInput = inputFile;
+  for (let i = 0; i < pipelines.length; i++) {
+    const pipeline = pipelines[i];
+    if (!pipeline) continue;
+    const nextPipeline = pipelines[i + 1];
+    const pipelineHasQuality = pipeline.recipe.some(op => op.id === 'quality');
+    const pipelineHasFormat = pipeline.recipe.find(op => op.id === 'format')?.args.type as string;
+    const nextHasFormat = nextPipeline?.recipe.find(op => op.id === 'format')?.args.type as string;
+    const nextHasQuality = nextPipeline?.recipe.some(op => op.id === 'quality') as boolean;
+    const pipelineExt = pipelineHasFormat || (pipelineHasQuality ? 'jpg' : (nextHasFormat || (nextHasQuality ? 'jpg' : finalExt)));
+
+    const result = await processPipeline(pipeline, currentInput, outputPath, pipelineExt, clientDir);
+    if (!result.success) return { success: false, error: result.error, output: '' };
+    currentInput = result.output;
+  }
+
+  if (currentInput === inputFile) {
+    const copy = await runMagick([currentInput, outputPath]);
+    if (!copy.success) return { success: false, error: copy.error || 'Failed to copy image', output: '' };
+  }
+
+  return { success: true, output: outputPath };
+}
+
+async function processGifAnimated(
+  inputFile: string,
+  pipelines: Pipeline[],
+  outputPath: string,
+  clientDir: string
+): Promise<{ success: boolean; error?: string; output: string }> {
+  const framesDir = join(clientDir, `frames-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`);
+  await mkdir(framesDir, { recursive: true });
+
+  try {
+    const extract = await runMagick([inputFile, '-coalesce', join(framesDir, 'frame-%d.png')]);
+    if (!extract.success) {
+      return { success: false, error: extract.error || 'Failed to read GIF frames', output: '' };
+    }
+
+    const entries = await readdir(framesDir);
+    const frames = entries
+      .filter(f => /^frame-\d+\.png$/.test(f))
+      .sort((a, b) => {
+        const na = parseInt(a.match(/\d+/)?.[0] || '0', 10);
+        const nb = parseInt(b.match(/\d+/)?.[0] || '0', 10);
+        return na - nb;
+      })
+      .map(f => join(framesDir, f));
+
+    if (frames.length === 0) {
+      return { success: false, error: 'No frames found in GIF', output: '' };
+    }
+
+    const delaysInfo = await runMagickOutput(['identify', '-format', '%T\n', inputFile]);
+    const parsedDelays = (delaysInfo.output ?? '')
+      .trim()
+      .split('\n')
+      .map(l => parseInt(l.trim(), 10));
+    const delays = frames.map((_, i) => (parsedDelays[i] && parsedDelays[i] > 0 ? parsedDelays[i] : 10));
+
+    const processed = await Promise.all(frames.map(async (frame, i) => {
+      const frameOut = join(framesDir, `out-${i}.png`);
+      const res = await applyPipelines(frame, pipelines, frameOut, 'png', clientDir);
+      return res.success ? frameOut : null;
+    }));
+
+    const valid = processed.filter((f): f is string => f !== null);
+    if (valid.length !== frames.length) {
+      return { success: false, error: 'Failed to process GIF frames', output: '' };
+    }
+
+    const delayArgs = delays.flatMap(d => ['-delay', String(d)]);
+    const combine = await runMagick(['-loop', '0', ...delayArgs, ...valid, outputPath]);
+    if (!combine.success) {
+      return { success: false, error: combine.error || 'Failed to merge GIF frames', output: '' };
+    }
+
+    return { success: true, output: outputPath };
+  } finally {
+    await rm(framesDir, { recursive: true, force: true }).catch(() => {});
   }
 }
 
@@ -88,7 +182,7 @@ export async function processImages(inputPath: string | string[], pipelines: Pip
     
     const finalPipelines = pipelines.filter(p => !p.recipe.some(op => op.id === 'animate'));
     if (finalPipelines.length > 0) {
-      const postResult = await processPipeline(finalPipelines[0], outputPath, outputPath, 'gif', clientDir);
+      const postResult = await processGifAnimated(outputPath, finalPipelines, outputPath, clientDir);
       if (!postResult.success) {
         return error(postResult.error || 'Failed to process animation');
       }
@@ -100,29 +194,26 @@ export async function processImages(inputPath: string | string[], pipelines: Pip
   const results = await Promise.all(paths.map(async (path, index) => {
     const inputFile = join(clientDir, path);
     if (!existsSync(inputFile)) return { success: false, error: `File not found: ${path}`, output: '' };
-    
+
+    const isGif = isGifPath(path);
     const lastRecipe = pipelines[pipelines.length - 1]?.recipe || [];
     const lastHasQuality = lastRecipe.some(op => op.id === 'quality');
-    const lastHasFormat = lastRecipe.find(op => op.id === 'format')?.args.type as string;
-    const finalExt = lastHasFormat || (lastHasQuality ? 'jpg' : 'png');
+    const explicitFormat = lastRecipe.find(op => op.id === 'format')?.args.type as string;
+    const finalExt = isGif && !explicitFormat
+      ? 'gif'
+      : explicitFormat || (lastHasQuality ? 'jpg' : (isGif ? 'gif' : 'png'));
     const outputPath = join(clientDir, `output-${Date.now()}-${index}.${finalExt}`);
-    
-    let currentInput = inputFile;
-    for (let i = 0; i < pipelines.length; i++) {
-      const pipeline = pipelines[i];
-      if (!pipeline) continue;
-      const nextPipeline = pipelines[i + 1];
-      const pipelineHasQuality = pipeline.recipe.some(op => op.id === 'quality');
-      const pipelineHasFormat = pipeline.recipe.find(op => op.id === 'format')?.args.type as string;
-      const nextHasFormat = nextPipeline?.recipe.find(op => op.id === 'format')?.args.type as string;
-      const nextHasQuality = nextPipeline?.recipe.some(op => op.id === 'quality') as boolean;
-      const pipelineExt = pipelineHasFormat || (pipelineHasQuality ? 'jpg' : (nextHasFormat || (nextHasQuality ? 'jpg' : finalExt)));
-      
-      const result = await processPipeline(pipeline, currentInput, outputPath, pipelineExt, clientDir);
-      if (!result.success) return { success: false, error: result.error, output: '' };
-      currentInput = result.output;
+
+    let result: { success: boolean; error?: string; output: string };
+    if (isGif) {
+      result = finalExt === 'gif'
+        ? await processGifAnimated(inputFile, pipelines, outputPath, clientDir)
+        : await applyPipelines(`${inputFile}[0]`, pipelines, outputPath, finalExt, clientDir);
+    } else {
+      result = await applyPipelines(inputFile, pipelines, outputPath, finalExt, clientDir);
     }
-    
+
+    if (!result.success) return { success: false, error: result.error, output: '' };
     return { success: true, output: `/uploads/clients/${clientId}/${outputPath.split('/').pop()}` };
   }));
   

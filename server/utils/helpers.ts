@@ -89,6 +89,18 @@ export async function runMagick(args: string[]): Promise<{ success: boolean; err
   });
 }
 
+export async function runMagickOutput(args: string[]): Promise<{ success: boolean; output?: string; error?: string }> {
+  return new Promise((resolve) => {
+    const proc = spawn('magick', args, { shell: false });
+    let stdout = '';
+    let stderr = '';
+    proc.stdout.on('data', (data) => { stdout += data.toString(); });
+    proc.stderr.on('data', (data) => { stderr += data.toString(); });
+    proc.on('close', (code) => resolve({ success: code === 0, output: stdout, error: stderr }));
+    proc.on('error', (err) => resolve({ success: false, error: err.message }));
+  });
+}
+
 export async function cleanClientDir(clientDir: string, keepFiles: string[]): Promise<void> {
   const keep = new Set(keepFiles);
   const entries = await readdir(clientDir, { withFileTypes: true }).catch(() => []);
